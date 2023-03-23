@@ -73,7 +73,16 @@ class Camera:
         self.prev_mouse_x = None
         self.prev_mouse_y = None
         self.zoom = 1.0
+        self.max_zoom = 2.75
     
+    def minZoom(self):
+        dx = min(self.x_location, MAP_WIDTH - self.x_location)
+        dy = min(self.y_location, MAP_HEIGHT - self.y_location)
+        min_x_zoom = WINDOW_WIDTH / (2 * dx + WINDOW_WIDTH / 2)
+        min_y_zoom = WINDOW_HEIGHT / (2 * dy + WINDOW_HEIGHT / 2)
+
+        return max(min_x_zoom, min_y_zoom)
+
     def update(self):
         if pygame.mouse.get_pressed()[1]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -82,11 +91,15 @@ class Camera:
                 dx = mouse_x - self.prev_mouse_x
                 dy = mouse_y - self.prev_mouse_y
                 
-                if 0 < self.x_location - dx - CENTER_X < MAP_WIDTH - 2 * CENTER_X:
-                    self.x_location -= dx
+                new_x = self.x_location - dx / self.zoom
+                new_y = self.y_location - dy / self.zoom
+
+                if 0 <= new_x - CENTER_X and new_x + CENTER_X <= MAP_WIDTH:
+                    self.x_location = new_x
             
-                if 0 < self.y_location - dy - CENTER_Y < MAP_HEIGHT - 2 * CENTER_Y:
-                    self.y_location -= dy
+                if 0 <= new_y - CENTER_Y and new_y + CENTER_Y <= MAP_HEIGHT:
+                    self.y_location = new_y
+
 
             self.prev_mouse_x = mouse_x
             self.prev_mouse_y = mouse_y
@@ -109,9 +122,12 @@ def main():
                 running = False
             elif e.type == pygame.MOUSEBUTTONDOWN:
                 if e.button == 4:
-                    camera.zoom *= 1.1
+                    new_zoom = camera.zoom * 1.1
+                    camera.zoom = min(camera.max_zoom, new_zoom)
                 elif e.button == 5:
-                    camera.zoom /= 1.1
+                    new_zoom = camera.zoom / 1.1
+                    min_zoom = camera.minZoom()
+                    camera.zoom = max(min_zoom, new_zoom)
 
         screen.fill(BLACK)
 
