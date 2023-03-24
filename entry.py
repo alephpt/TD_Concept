@@ -10,7 +10,7 @@ CENTER_Y = WINDOW_HEIGHT // 2
 CENTER_X = WINDOW_WIDTH // 2
 
 N_MAP_SQUARES_X = 180
-N_MAP_SQUARES_Y = 450
+N_MAP_SQUARES_Y = 280
 SQUARE_SIZE = 48
 
 WINDOW_SQUARES_X = math.ceil(WINDOW_WIDTH // SQUARE_SIZE)
@@ -19,7 +19,7 @@ WINDOW_SQUARES_Y = math.ceil(WINDOW_HEIGHT // SQUARE_SIZE)
 MAP_WIDTH = N_MAP_SQUARES_X * SQUARE_SIZE
 MAP_HEIGHT = N_MAP_SQUARES_Y * SQUARE_SIZE
 
-PATH_WIDTH = N_MAP_SQUARES_X // 10
+PATH_WIDTH = max(10, min(20, N_MAP_SQUARES_X // 10))
 HALF_PATH = PATH_WIDTH // 2
 MAP_OFFSET = N_MAP_SQUARES_X // 2 - PATH_WIDTH
 
@@ -32,13 +32,7 @@ BROWN = (175, 96, 26)
 
 colors = [BLACK, WHITE, GRAY, GREEN, BROWN]
 
-# the path's are going to be 1/12th of the map width
-# the first position is somewhere on the left half +/- the path width
-first_pos = random.randint(PATH_WIDTH, MAP_OFFSET)
-# the second position is somewhere between the first position, and the offset of the first position
-second_pos = random.randint(first_pos + PATH_WIDTH * 2, (N_MAP_SQUARES_X - MAP_OFFSET) + (MAP_OFFSET - first_pos) + PATH_WIDTH * 2)
-# the third path is between the second path and the end of the map width
-third_pos = random.randint(second_pos + PATH_WIDTH * 2, N_MAP_SQUARES_X - PATH_WIDTH)
+
 
 
 pygame.init()
@@ -65,20 +59,72 @@ class Square:
         pygame.draw.rect(screen, self.color, (x, y, size, size), self.fill)
 
 
-class Grid:
+class Path:
     def __init__(self):
-        self.squares = self.constructGrid(first_pos, second_pos, third_pos)
+        self.x = 0
+        self.width = PATH_WIDTH
+        self.l_bounds = PATH_WIDTH + HALF_PATH
+        self.r_bounds = N_MAP_SQUARES_X - PATH_WIDTH - HALF_PATH
+
+
+class Grid:
+    # Pick a starting position for 3 paths 
+    # TODO: Need to make this modular based on N number of players/paths
+    left_pos = random.randint(PATH_WIDTH + HALF_PATH, MAP_OFFSET - (PATH_WIDTH + HALF_PATH))
+    middle_pos = random.randint(left_pos + PATH_WIDTH + HALF_PATH, N_MAP_SQUARES_X / 2 + left_pos - PATH_WIDTH)
+    right_pos = random.randint(middle_pos + PATH_WIDTH + HALF_PATH, N_MAP_SQUARES_X - PATH_WIDTH - HALF_PATH)
+
+    def __init__(self):
+        self.squares = self.constructGrid(self.left_pos, self.middle_pos, self.right_pos)
+        self.left_convergence = N_MAP_SQUARES_Y // random.randint(2, 4)
+        self.right_convergence = N_MAP_SQUARES_Y // random.randint(2, 4)
+
+    def updatePathLocations(self):
+        l_path_deviation = random.randint(-1, 1)
+        m_path_deviation = random.randint(-1, 1)
+        r_path_deviation = random.randint(-1, 1)
+
+        new_left_path = self.left_pos + l_path_deviation
+        new_middle_path = self.middle_pos + m_path_deviation
+        new_right_path = self.right_pos + r_path_deviation
+
+        left_middle_mediant = (self.left_pos + self.middle_pos) / 2
+        middle_right_mediant = (self.right_pos + self.middle_pos) / 2
+
+        left_edge_bounds = PATH_WIDTH + HALF_PATH
+        left_middle_bounds = left_middle_mediant - PATH_WIDTH
+        middle_left_bounds = left_middle_mediant + PATH_WIDTH
+        middle_right_bounds = middle_right_mediant - PATH_WIDTH
+        right_middle_bounds = middle_right_mediant + PATH_WIDTH
+        right_edge_bounds = N_MAP_SQUARES_X - PATH_WIDTH - HALF_PATH
+
+
+        if left_edge_bounds < new_left_path < left_middle_bounds:
+            self.left_pos = new_left_path
+        else:
+            self.left_pos -= l_path_deviation
+           
+        if middle_left_bounds < new_middle_path < middle_right_bounds:
+            self.middle_pos = new_middle_path
+        else:
+            self.middle_pos -= m_path_deviation
+
+        if right_middle_bounds < new_right_path < right_edge_bounds:
+            self.right_pos = new_right_path
+        else:
+            self.right_pos -= m_path_deviation
+
 
     def constructGrid(self, first_x, second_x, third_x):
         grid = [[0 for _ in range(N_MAP_SQUARES_X)] for _ in range(N_MAP_SQUARES_Y)]
 
         for y in range(N_MAP_SQUARES_Y):
-            f_path_mod_l = random.randint(-1, 1)
-            f_path_mod_r = random.randint(-1, 1)
-            s_path_mod_l = random.randint(-1, 1)
-            s_path_mod_r = random.randint(-1, 1)
-            t_path_mod_l = random.randint(-1, 1)
-            t_path_mod_r = random.randint(-1, 1)
+            l_path_mod_l = random.randint(-1, 1)
+            l_path_mod_r = random.randint(-1, 1)
+            m_path_mod_l = random.randint(-1, 1)
+            m_path_mod_r = random.randint(-1, 1)
+            r_path_mod_l = random.randint(-1, 1)
+            r_path_mod_r = random.randint(-1, 1)
 
             for x in range(N_MAP_SQUARES_X):
                 color = BROWN
@@ -86,16 +132,20 @@ class Grid:
                 fill = 0
 
 
-                if first_pos - HALF_PATH - f_path_mod_l < x < first_pos + HALF_PATH + f_path_mod_r or \
-                   second_pos - HALF_PATH - s_path_mod_l < x < second_pos + HALF_PATH + s_path_mod_r or \
-                   third_pos - HALF_PATH - t_path_mod_l < x < third_pos + HALF_PATH + t_path_mod_r:
+                if self.left_pos - HALF_PATH - l_path_mod_l < x < self.left_pos + HALF_PATH + l_path_mod_r or \
+                   self.middle_pos - HALF_PATH - m_path_mod_l < x < self.middle_pos + HALF_PATH + m_path_mod_r or \
+                   self.right_pos - HALF_PATH - r_path_mod_l < x < self.right_pos + HALF_PATH + r_path_mod_r:
                     color = GREEN
                     path = True
                     fill = 1
 
                 grid[y][x] = Square(x, y, color, path, fill)
 
+            self.updatePathLocations()
+
+
         return grid
+
 
     def draw(self, origin_x, origin_y, zoom):
         visible_x = int(CENTER_X * 2 / zoom)
@@ -116,16 +166,17 @@ class Camera:
         self.y_location = MAP_HEIGHT / 2
         self.prev_mouse_x = None
         self.prev_mouse_y = None
-        self.zoom = 1.0
+        self.zoom = 0.2
         self.max_zoom = 2.75
     
     def minZoom(self):
-        dx = min(self.x_location, MAP_WIDTH - self.x_location)
-        dy = min(self.y_location, MAP_HEIGHT - self.y_location)
-        min_x_zoom = WINDOW_WIDTH / (2 * dx + WINDOW_WIDTH / 2)
-        min_y_zoom = WINDOW_HEIGHT / (2 * dy + WINDOW_HEIGHT / 2)
+        dx = min(self.x_location - CENTER_X, MAP_WIDTH - self.x_location - CENTER_X)
+        dy = min(self.y_location - CENTER_Y, MAP_HEIGHT - self.y_location - CENTER_Y)
 
-        return max(min_x_zoom, min_y_zoom)
+        min_x_zoom = WINDOW_WIDTH / (2 * dx + WINDOW_WIDTH)
+        min_y_zoom = WINDOW_HEIGHT / (2 * dy + WINDOW_HEIGHT)
+
+        return max(min_x_zoom, min_y_zoom) / 3
 
     def update(self):
         if pygame.mouse.get_pressed()[1]:
