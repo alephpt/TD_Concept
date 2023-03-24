@@ -1,21 +1,28 @@
+from codecs import getincrementaldecoder
+from importlib.resources import path
 import pygame
 import random
 import math
 
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 1200
-CENTER_Y = WINDOW_HEIGHT / 2
-CENTER_X = WINDOW_WIDTH / 2
+CENTER_Y = WINDOW_HEIGHT // 2
+CENTER_X = WINDOW_WIDTH // 2
 
-MAP_SQUARES_X = 180
-MAP_SQUARES_Y = 450
+N_MAP_SQUARES_X = 180
+N_MAP_SQUARES_Y = 450
 SQUARE_SIZE = 48
 
-WINDOW_SQUARES_X = math.ceil(WINDOW_WIDTH / SQUARE_SIZE)
-WINDOW_SQUARES_Y = math.ceil(WINDOW_HEIGHT / SQUARE_SIZE)
+WINDOW_SQUARES_X = math.ceil(WINDOW_WIDTH // SQUARE_SIZE)
+WINDOW_SQUARES_Y = math.ceil(WINDOW_HEIGHT // SQUARE_SIZE)
 
-MAP_WIDTH = MAP_SQUARES_X * SQUARE_SIZE
-MAP_HEIGHT = MAP_SQUARES_Y * SQUARE_SIZE
+MAP_WIDTH = N_MAP_SQUARES_X * SQUARE_SIZE
+MAP_HEIGHT = N_MAP_SQUARES_Y * SQUARE_SIZE
+
+PATH_WIDTH = N_MAP_SQUARES_X // 10
+HALF_PATH = PATH_WIDTH // 2
+MAP_OFFSET = N_MAP_SQUARES_X // 2 - PATH_WIDTH
+
 
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
@@ -23,7 +30,16 @@ GRAY = (133, 146, 158)
 GREEN = (82, 190, 128)
 BROWN = (175, 96, 26)
 
-colors = [WHITE, GRAY, GREEN, BROWN]
+colors = [BLACK, WHITE, GRAY, GREEN, BROWN]
+
+# the path's are going to be 1/12th of the map width
+# the first position is somewhere on the left half +/- the path width
+first_pos = random.randint(PATH_WIDTH, MAP_OFFSET)
+# the second position is somewhere between the first position, and the offset of the first position
+second_pos = random.randint(first_pos + PATH_WIDTH * 2, (N_MAP_SQUARES_X - MAP_OFFSET) + (MAP_OFFSET - first_pos) + PATH_WIDTH * 2)
+# the third path is between the second path and the end of the map width
+third_pos = random.randint(second_pos + PATH_WIDTH * 2, N_MAP_SQUARES_X - PATH_WIDTH)
+
 
 pygame.init()
 pygame.font.init()
@@ -34,12 +50,13 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 class Square: 
-    def __init__(self, x, y, color):
+    def __init__(self, x, y, color, path, fill):
         self.x = x * SQUARE_SIZE
         self.y = y * SQUARE_SIZE
         self.size = SQUARE_SIZE
         self.color = color
-        self.fill = random.randint(0, 1)
+        self.fill = fill
+        self.path = path
 
     def draw(self, x_origin, y_origin, zoom):
         x = (self.x - x_origin) * zoom + CENTER_X
@@ -48,18 +65,45 @@ class Square:
         pygame.draw.rect(screen, self.color, (x, y, size, size), self.fill)
 
 
-
 class Grid:
-    def __init__(self, color):
-        self.squares = [[Square(x, y, random.choice(colors)) for x in range(MAP_SQUARES_X)] for y in range(MAP_SQUARES_Y)]
+    def __init__(self):
+        self.squares = self.constructGrid(first_pos, second_pos, third_pos)
+
+    def constructGrid(self, first_x, second_x, third_x):
+        grid = [[0 for _ in range(N_MAP_SQUARES_X)] for _ in range(N_MAP_SQUARES_Y)]
+
+        for y in range(N_MAP_SQUARES_Y):
+            f_path_mod_l = random.randint(-1, 1)
+            f_path_mod_r = random.randint(-1, 1)
+            s_path_mod_l = random.randint(-1, 1)
+            s_path_mod_r = random.randint(-1, 1)
+            t_path_mod_l = random.randint(-1, 1)
+            t_path_mod_r = random.randint(-1, 1)
+
+            for x in range(N_MAP_SQUARES_X):
+                color = BROWN
+                path = False
+                fill = 0
+
+
+                if first_pos - HALF_PATH - f_path_mod_l < x < first_pos + HALF_PATH + f_path_mod_r or \
+                   second_pos - HALF_PATH - s_path_mod_l < x < second_pos + HALF_PATH + s_path_mod_r or \
+                   third_pos - HALF_PATH - t_path_mod_l < x < third_pos + HALF_PATH + t_path_mod_r:
+                    color = GREEN
+                    path = True
+                    fill = 1
+
+                grid[y][x] = Square(x, y, color, path, fill)
+
+        return grid
 
     def draw(self, origin_x, origin_y, zoom):
         visible_x = int(CENTER_X * 2 / zoom)
         visible_y = int(CENTER_Y * 2 / zoom)
         min_y = max(0, int((origin_y - visible_y // 2) // SQUARE_SIZE))
-        max_y = min(MAP_SQUARES_Y, int((origin_y + visible_y // 2) // SQUARE_SIZE) + 1)
+        max_y = min(N_MAP_SQUARES_Y, int((origin_y + visible_y // 2) // SQUARE_SIZE) + 1)
         min_x = max(0, int((origin_x - visible_x // 2) // SQUARE_SIZE))
-        max_x = min(MAP_SQUARES_X, int((origin_x + visible_x // 2) // SQUARE_SIZE) + 1)
+        max_x = min(N_MAP_SQUARES_X, int((origin_x + visible_x // 2) // SQUARE_SIZE) + 1)
 
         for row in self.squares[min_y:max_y]:
             for square in row[min_x:max_x]:
@@ -112,7 +156,7 @@ class Camera:
 
 
 def main():
-    grid = Grid(WHITE)
+    grid = Grid()
     camera = Camera()
     running = True
     
