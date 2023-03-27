@@ -32,9 +32,6 @@ BROWN = (175, 96, 26)
 
 colors = [BLACK, WHITE, GRAY, GREEN, BROWN]
 
-
-
-
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption("Testing Map Generation")
@@ -130,7 +127,6 @@ class Grid:
                 color = BROWN
                 path = False
                 fill = 0
-
 
                 if self.left_pos - HALF_PATH - l_path_mod_l < x < self.left_pos + HALF_PATH + l_path_mod_r or \
                    self.middle_pos - HALF_PATH - m_path_mod_l < x < self.middle_pos + HALF_PATH + m_path_mod_r or \
