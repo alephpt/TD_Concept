@@ -4,8 +4,6 @@ import random
 import math
 import json
 
-from entry import N_MAP_SQUARES_X
-
 SQ_SIZE = 10
 N_MAP_SQ_X = 120
 N_MAP_SQ_Y = 80
@@ -18,9 +16,6 @@ WINDOW_HEIGHT = 800
 CENTER_WIDTH = WINDOW_WIDTH / 2
 CENTER_HEIGHT = WINDOW_HEIGHT / 2
 
-WINDOW_SQ_X = WINDOW_WIDTH // SQ_SIZE
-WINDOW_SQ_Y = WINDOW_HEIGHT // SQ_SIZE
-
 PATH_WIDTH = max(13, min(22, N_MAP_SQ_X // 8))
 PATH_HALF = PATH_WIDTH // 2
 
@@ -29,7 +24,6 @@ R_EDGE = N_MAP_SQ_X - L_EDGE
 T_EDGE = PATH_WIDTH + PATH_HALF
 B_EDGE = N_MAP_SQ_Y - T_EDGE
 
-N_PLAYERS = 1
 NODE_RADIUS = 30
 
 pygame.init()
@@ -75,7 +69,7 @@ class Node:
         self.y_loc = location_y * SQ_SIZE
         self.color = color
         self.radius = radius
-        self.next = []
+        self.next_node = []
 
     def draw(self):
         pygame.draw.circle(screen, self.color, (self.x_loc, self.y_loc), self.radius)
@@ -90,57 +84,79 @@ class Node:
 
     @classmethod
     def Target(cls, l_edge, r_edge):
-        return cls(NodeType.Spawn, Color.LightGreen.value, random.randint(l_edge, r_edge), N_MAP_SQ_Y, NODE_RADIUS // 2)
+        return cls(NodeType.Target, Color.LightGreen.value, random.randint(l_edge, r_edge), N_MAP_SQ_Y, NODE_RADIUS // 2)
 
-
+#            if node.type == NodeType.Entry:
+#                pygame.draw.circle(screen, Color.Green.value, (node.x_loc, node.y_loc), NODE_RADIUS)
+#                continue
+#            if node.type == NodeType.Intermediate:
+#                pygame.draw.circle(screen, Color.Orange.value, (node.x_loc, node.y_loc), NODE_RADIUS)
+#                continue
+#            if node.type == NodeType.Exit:
+#                pygame.draw.circle(screen, Color.Red.value, (node.x_loc, node.y_loc), NODE_RADIUS)
+#                continue
 
 class Map:
     def __init__(self, game_mode, n_players):
-        self.nodes = self.instantiateNodes(game_mode, n_players)
+        self.game_mode = game_mode
+        self.n_players = n_players
+        self.nodes = []
     
     def draw(self):
         for this_node in self.nodes:
-            for next_node in node.next:
-                pygame.draw.line(screen, Color.Brown.value, (this_node.x_loc, this_node.y_loc), (next_node.x_loc, next_node.y_loc), 8)
-        
-        for node in self.nodes:
-            node.draw()        
+            if this_node.next_node:
+                for next_node in this_node.next_node:
+                    pygame.draw.line(screen, Color.Brown.value, (this_node.x_loc, this_node.y_loc), (next_node.x_loc, next_node.y_loc), 8)
+            this_node.draw()        
+    
+    def generate(self):
+        if self.game_mode == GameMode.Solo:
+            spawn = Node.Spawn(L_EDGE, R_EDGE)
+            player = Node.Solo(L_EDGE, R_EDGE, T_EDGE, B_EDGE)
+            target = Node.Target(L_EDGE, R_EDGE)
+            
+            spawn.next_node.append(player)
+            player.next_node.append(target)
+            target.next_node = None
 
-            if node.type == NodeType.Entry:
-                pygame.draw.circle(screen, Color.Green.value, (node.x_loc, node.y_loc), NODE_RADIUS)
-                continue
-            if node.type == NodeType.Intermediate:
-                pygame.draw.circle(screen, Color.Orange.value, (node.x_loc, node.y_loc), NODE_RADIUS)
-                continue
-            if node.type == NodeType.Exit:
-                pygame.draw.circle(screen, Color.Red.value, (node.x_loc, node.y_loc), NODE_RADIUS)
-                continue
-
-    def instantiateNodes(self, game_mode, n_players):
-        nodes = []
-
-        if game_mode == GameMode.Solo:
-            nodes.append(Node.Spawn(L_EDGE, R_EDGE))
-            nodes.append(Node.Solo(L_EDGE, R_EDGE, T_EDGE, B_EDGE))
-            nodes.append(Node.Target(L_EDGE, R_EDGE))
-        elif game_mode == GameMode.Cooperative:
-            if n_players == 2:
+            self.nodes.append(spawn)
+            self.nodes.append(player)
+            self.nodes.append(target)
+        elif self.game_mode == GameMode.Cooperative:
+            if self.n_players == 2:
                 n_strongholds = random.randint(1, 2)
                 node_mediant_x = random.randint(L_EDGE + PATH_HALF, R_EDGE - PATH_HALF)
-                section_width = N_MAP_SQUARES_X - PATH_WIDTH * 2
+                section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_strongholds
 
-                # drawn from one path to strongholds, and then reversed to avoid path overlap
-                strongholds = [Node.Target(R_EDGE - section_width * i + L_EDGE, L_EDGE + section_width * i - R_EDGE) for i in range(n_strongholds)]
-                spawn1 = Node.Spawn(L_EDGE, N_MAP_SQ_X // 2))
+                # create all nodes
+                spawn1 = Node.Spawn(L_EDGE, N_MAP_SQ_X // 2 - PATH_HALF)
+                spawn2 = Node.Spawn(N_MAP_SQ_X // 2 + PATH_HALF, R_EDGE)
+                player_1 = Node.Solo(L_EDGE, node_mediant_x, T_EDGE, B_EDGE)
+                player_2 = Node.Solo(node_mediant_x, R_EDGE, T_EDGE, B_EDGE)
+                strongholds = [Node.Target(section_width * i + L_EDGE, section_width * (i + 1) + L_EDGE) for i in range(n_strongholds)]
                 
-                nodes.append(Node.Spawn(N_MAP_SQ_X // 2, R_EDGE))
+                # link nodes for paths
+                spawn1.next_node.append(player_1)
+                spawn2.next_node.append(player_2)
 
+                if len(strongholds) == 1:
+                    player_1.next_node.append(strongholds[0])
+                    player_2.next_node.append(strongholds[0])
+                else:
+                    player_1.next_node.append(strongholds[0])
+                    player_2.next_node.append(strongholds[1])
 
+                # store nodes in map instance
+                self.nodes.append(spawn1)
+                self.nodes.append(spawn2)
+                self.nodes.append(player_1)
+                self.nodes.append(player_2)
+                
+                for stronghold in strongholds:
+                    stronghold.next_node = None
+                    self.nodes.append(stronghold)
 
-        return nodes
-    
-
-
+            
 class Game:
     def __init__(self, game_mode, n_players):
         self.running = True
@@ -150,7 +166,10 @@ class Game:
 
 
 def main():
-    game = Game(GameMode.Solo, N_PLAYERS)
+    players = 2
+    game_mode = GameMode.Cooperative
+    game = Game(game_mode, players)
+    game.world_map.generate()
     
     while game.running:
         for e in pygame.event.get():
