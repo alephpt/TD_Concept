@@ -1,0 +1,315 @@
+[
+  {
+    "players": 1,
+    "nodes": [
+      {
+        "spawn": [
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 0
+              }
+            ]
+          }
+        ],
+        "playable": [
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index":  0
+              }
+            ]
+          }
+        ],
+        "stronghold": [
+          {
+            "next_node": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "players": 2,
+    "nodes": [
+      {
+        "spawn": [
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "playable": [
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 0
+              }
+            ]
+          }
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 0
+              }
+            ]
+          }
+        ],
+        "stronghold": [
+          {
+            "next_node": null
+          }
+        ]
+      },
+      {
+        "spawn": [
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "playable": [
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "stronghold": [
+          {
+            "next_node": null
+          },
+          {
+            "next_node": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "players": 3,
+    "nodes": [
+      {
+        "spawn": [
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "playable": [
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 2
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 2
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 0
+              }
+            ]
+          }
+        ],
+        "stronghold": [
+          {
+            "next_node": null
+          }
+        ]
+      },
+      {
+        "spawn": [
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 1
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 2
+              }
+            ]
+          }
+        ],
+        "playable": [
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 0
+              },
+              {
+                "type": "stronghold",
+                "index": 1
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 1
+              }
+            ]
+          }
+        ],
+        "stronghold": [
+          {
+            "next_node": null
+          },
+          {
+            "next_node": null
+          }
+        ]
+      },
+      {
+        "spawn": [
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 1
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "playable",
+                "index": 2
+              }
+            ]
+          }
+        ],
+        "playable": [
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 0
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 1
+              }
+            ]
+          },
+          {
+            "next_node": [
+              {
+                "type": "stronghold",
+                "index": 2
+              }
+            ]
+          }
+        ],
+        "stronghold": [
+          {
+            "next_node": null
+          },
+          {
+            "next_node": null
+          },
+          {
+            "next_node": null
+          }
+        ]
+      }
+    ]
+  }
+]
