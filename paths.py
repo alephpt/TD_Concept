@@ -63,8 +63,9 @@ class GameMode(Enum):
 
     
 class Node:
-    def __init__(self, type, color, location_x, location_y, radius):
-        self.type = type
+    def __init__(self, node_type, index, color, location_x, location_y, radius):
+        self.type = node_type
+        self.index = index
         self.x_loc = location_x * SQ_SIZE
         self.y_loc = location_y * SQ_SIZE
         self.color = color
@@ -75,29 +76,37 @@ class Node:
         pygame.draw.circle(screen, self.color, (self.x_loc, self.y_loc), self.radius)
 
     @classmethod
-    def Solo(cls, l_edge, r_edge, t_edge, b_edge):
-        return cls(NodeType.Solo, Color.Purple.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
+    def Solo(cls, index, l_edge, r_edge, t_edge, b_edge):
+        return cls(NodeType.Solo, index, Color.Purple.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
 
     @classmethod
-    def Spawn(cls, l_edge, r_edge):
-        return cls(NodeType.Spawn, Color.LightRed.value, random.randint(l_edge, r_edge), 0, NODE_RADIUS // 2)
+    def Entry(cls, index, l_edge, r_edge, t_edge, b_edge):
+        return cls(NodeType.Entry, index, Color.Green.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
 
     @classmethod
-    def Target(cls, l_edge, r_edge):
-        return cls(NodeType.Target, Color.LightGreen.value, random.randint(l_edge, r_edge), N_MAP_SQ_Y, NODE_RADIUS // 2)
+    def Intermediate(cls, index, l_edge, r_edge, t_edge, b_edge):
+        return cls(NodeType.Intermediate, index, Color.Orange.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
 
-#            if node.type == NodeType.Entry:
-#                pygame.draw.circle(screen, Color.Green.value, (node.x_loc, node.y_loc), NODE_RADIUS)
-#                continue
-#            if node.type == NodeType.Intermediate:
-#                pygame.draw.circle(screen, Color.Orange.value, (node.x_loc, node.y_loc), NODE_RADIUS)
-#                continue
-#            if node.type == NodeType.Exit:
-#                pygame.draw.circle(screen, Color.Red.value, (node.x_loc, node.y_loc), NODE_RADIUS)
-#                continue
+    @classmethod
+    def Exit(cls, index, l_edge, r_edge, t_edge, b_edge):
+        return cls(NodeType.Exit, index, Color.Red.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
+
+    @classmethod
+    def Spawn(cls, index, l_edge, r_edge):
+        return cls(NodeType.Spawn, index, Color.LightRed.value, random.randint(l_edge, r_edge), 0, NODE_RADIUS // 2)
+
+    @classmethod
+    def Target(cls, index, l_edge, r_edge):
+        return cls(NodeType.Target, index, Color.LightGreen.value, random.randint(l_edge, r_edge), N_MAP_SQ_Y, NODE_RADIUS // 2)
+
+
 
 class Map:
-    def __init__(self, game_mode, n_players):
+    def __init__(self, game_mode, n_players, template):
+        self.spawn_points = template["spawn"]
+        self.player_areas = template["playable"]
+        self.strongholds = template["stronghold"]
+        self.player_layers = template["playable_layers"]
         self.game_mode = game_mode
         self.n_players = n_players
         self.nodes = []
@@ -108,61 +117,61 @@ class Map:
                 for next_node in this_node.next_node:
                     pygame.draw.line(screen, Color.Brown.value, (this_node.x_loc, this_node.y_loc), (next_node.x_loc, next_node.y_loc), 8)
             this_node.draw()        
-    
-    def generate(self):
-        if self.game_mode == GameMode.Solo:
-            spawn = Node.Spawn(L_EDGE, R_EDGE)
-            player = Node.Solo(L_EDGE, R_EDGE, T_EDGE, B_EDGE)
-            target = Node.Target(L_EDGE, R_EDGE)
-            
-            spawn.next_node.append(player)
-            player.next_node.append(target)
-            target.next_node = None
 
-            self.nodes.append(spawn)
-            self.nodes.append(player)
-            self.nodes.append(target)
-        elif self.game_mode == GameMode.Cooperative:
-            if self.n_players == 2:
-                n_strongholds = random.randint(1, 2)
-                node_mediant_x = random.randint(L_EDGE + PATH_HALF, R_EDGE - PATH_HALF)
-                section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_strongholds
+    def connectEdges(self):
+        for node in self.node.append:
+            if node.type == NodeType.Spawn:
+                node_map = self.spawn_points[node.index]["next_node"]
+                next_node_type = node_map["type"]
 
-                # create all nodes
-                spawn1 = Node.Spawn(L_EDGE, N_MAP_SQ_X // 2 - PATH_HALF)
-                spawn2 = Node.Spawn(N_MAP_SQ_X // 2 + PATH_HALF, R_EDGE)
-                player_1 = Node.Solo(L_EDGE, node_mediant_x, T_EDGE, B_EDGE)
-                player_2 = Node.Solo(node_mediant_x, R_EDGE, T_EDGE, B_EDGE)
-                strongholds = [Node.Target(section_width * i + L_EDGE, section_width * (i + 1) + L_EDGE) for i in range(n_strongholds)]
-                
-                # link nodes for paths
-                spawn1.next_node.append(player_1)
-                spawn2.next_node.append(player_2)
+    def instantiateNodes(self, ):
+        for exit_node in self.strongholds:
+            self.nodes.append(Node.Target(strongholds.index(exit_node), L_EDGE, R_EDGE))
+        
+        if self.data["playable_layers"] == 1:
+            layer_count = 0
+            for player_node in self.player_areas:
+                layer_count += 1
 
-                if len(strongholds) == 1:
-                    player_1.next_node.append(strongholds[0])
-                    player_2.next_node.append(strongholds[0])
+            section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // 2
+
+            for i in range(layer_count):
+                self.node.append(Node.Solo(i, section_width * i + L_EDGE, section_width * (i + 1) + L_EDGE))
+        else:
+            # for every node
+            for player_node in self.player_areas:
+                # if a node is in the first layer
+                if player_node["layer"] == 0:
+                    # check if next node is a stronghold -> solo node
+                    if player_node["next_node"]["type"] == "stronghold":
+                        self.node.append(Node.Solo())
+                    # else it's an entry node
+                    else: 
+                        self.node.append(Node.Entry())
+                # else if a nodes next type is stronghold it's an exit node
+                elif player_node["next_node"]["type"] == "stronghold":
+                    self.node.append(Node.Exit())
+                # else it's in the middle
                 else:
-                    player_1.next_node.append(strongholds[0])
-                    player_2.next_node.append(strongholds[1])
+                    self.node.append(Node.Intermediary())
 
-                # store nodes in map instance
-                self.nodes.append(spawn1)
-                self.nodes.append(spawn2)
-                self.nodes.append(player_1)
-                self.nodes.append(player_2)
-                
-                for stronghold in strongholds:
-                    stronghold.next_node = None
-                    self.nodes.append(stronghold)
+        for spawn_node in spawns:
+            self.nodes.append(Node.Spawn())
+
+    def generate(self):
+        self.instantiateNodes()
+        self.connectEdges()
+
 
             
 class Game:
     def __init__(self, game_mode, n_players):
         self.running = True
         self.game_mode = game_mode
+        self.map_data = json.load(open('graph.json', 'r'))
+        self.map_template = random.choice(self.map_data[n_players - 1]['layouts'])
         self.n_players = n_players
-        self.world_map = Map(game_mode, n_players)
+        self.world_map = Map(game_mode, n_players, self.map_template)
 
 
 def main():
@@ -170,6 +179,8 @@ def main():
     game_mode = GameMode.Cooperative
     game = Game(game_mode, players)
     game.world_map.generate()
+
+    print(json.dumps(game.world_map.data, indent=2))
     
     while game.running:
         for e in pygame.event.get():
