@@ -163,6 +163,11 @@ class Map:
                 for i in range(len(nodes)):
                         location = self.getPlayableLocation(i, layer, section_width, section_height)
 
+                        if self.orientation == Orientation.BottomUp:
+                            location = (location[0], N_MAP_SQ_Y - location[1])
+                        if self.orientation == Orientation.RightFacing:
+                            location = (N_MAP_SQ_X - location[0], location[1])
+
                         if layer == 0:
                             self.nodes.append(Node.Entry(idx, location))
                         elif self.playable_nodes[idx]['next_nodes'][0]['type'] == 'Stronghold':
@@ -199,19 +204,13 @@ class Map:
         y_location = 0
 
         if isinstance(x_data, tuple):
-            x_index = x_data[0]
-            x_section_size = x_data[1]
-            left_offset = x_data[2]
-            right_offset = x_data[3]
+            x_index, x_section_size, left_offset, right_offset = x_data
             x_location = random.randint(x_section_size * x_index + left_offset, x_section_size * (x_index + 1) + right_offset)
         else:
             x_location = x_data
 
         if isinstance(y_data, tuple):
-            y_index = y_data[0]
-            y_section_size = y_data[1]
-            top_offset = y_data[2]
-            bottom_offset = y_data[3]
+            y_index ,y_section_size ,top_offset, bottom_offset = y_data
             y_location = random.randint(y_section_size * y_index + top_offset, y_section_size * (y_index + 1) + bottom_offset)
         else:
             y_location = y_data
@@ -219,9 +218,10 @@ class Map:
         # if we are inverting the map vertically, we need to flip the locations horizontally
         if self.orientation == Orientation.BottomUp:
             x_location = N_MAP_SQ_X - x_location
-        # if we flip the map horizontally, we need to flip the locations vertically
+        # if we are inverting the map horizontally, we need to flip the locations vertically
         elif self.orientation == Orientation.RightFacing:
             y_location = N_MAP_SQ_Y - y_location
+
 
         return (x_location, y_location)
 
@@ -247,9 +247,9 @@ class Map:
 
     def getPlayableLocation(self, ix, iy, section_width, section_height):
         if self.orientation in [Orientation.TopDown, Orientation.BottomUp]:
-            return(self.getLocation((ix, section_width, L_EDGE + PATH_HALF, 0), (iy, section_height, PATH_HALF, -PATH_HALF)))
+            return self.getLocation((ix, section_width, L_EDGE + PATH_HALF, 0), (iy, section_height, PATH_HALF, -PATH_HALF))
         elif self.orientation in [Orientation.LeftFacing, Orientation.RightFacing]:
-            return(self.getLocation((iy, section_height, PATH_HALF, -PATH_HALF), (ix, section_width, L_EDGE + PATH_HALF, 0)))
+            return self.getLocation((iy, section_height, L_EDGE + PATH_HALF, 0), (ix, section_width, PATH_HALF, 0))
 
 
     def generate(self):
@@ -271,7 +271,7 @@ class Game:
 
 def main():
     players = 3 #random.randint(1, 3)
-    orientation = Orientation.TopDown
+    orientation = Orientation.LeftFacing
     game_mode = GameMode.Cooperative
     game = Game(game_mode, orientation, players)
     game.world_map.generate()
