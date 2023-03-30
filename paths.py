@@ -1,4 +1,5 @@
 from locale import getlocale
+from sys import path_hooks
 import pygame
 from enum import Enum
 import random
@@ -160,7 +161,7 @@ class Map:
                 nodes = [n for n in self.playable_nodes if n['layer'] == layer]
                 section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // len(nodes)
                 for i in range(len(nodes)):
-                        location = self.getPlayableLocation(i, layer, section_width, section_height, L_EDGE + PATH_HALF, 0, PATH_HALF, -PATH_HALF)
+                        location = self.getPlayableLocation(i, layer, section_width, section_height)
 
                         if layer == 0:
                             self.nodes.append(Node.Entry(idx, location))
@@ -176,28 +177,14 @@ class Map:
         section_size = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_strongholds
 
         for i in range(n_strongholds):
-            if self.orientation == Orientation.TopDown:
-                self.nodes.append(Node.Stronghold(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), N_MAP_SQ_Y)))
-            elif self.orientation == Orientation.BottomUp:
-                self.nodes.append(Node.Stronghold(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), 0)))
-            elif self.orientation == Orientation.RightFacing:
-                self.nodes.append(Node.Stronghold(i, self.getLocation(0, (i, section_size, L_EDGE + PATH_HALF, 0))))
-            elif self.orientation == Orientation.LeftFacing:
-                self.nodes.append(Node.Stronghold(i, self.getLocation(N_MAP_SQ_X, (i, section_size, L_EDGE + PATH_HALF, 0))))
+            self.nodes.append(Node.Stronghold(i, self.getStrongholdLocation(i, section_size)))
 
     def instantiateSpawns(self):
         n_spawns = len(self.spawn_points)
         section_size = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_spawns
 
         for i in range(n_spawns):
-            if self.orientation == Orientation.TopDown:
-                self.nodes.append(Node.Spawn(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), 0)))
-            elif self.orientation == Orientation.BottomUp:
-                self.nodes.append(Node.Spawn(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), N_MAP_SQ_Y)))
-            elif self.orientation == Orientation.RightFacing:
-                self.nodes.append(Node.Spawn(i, self.getLocation(N_MAP_SQ_X, (i, section_size, L_EDGE + PATH_HALF, 0))))
-            elif self.orientation == Orientation.LeftFacing:
-                self.nodes.append(Node.Spawn(i, self.getLocation(0, (i, section_size, L_EDGE + PATH_HALF, 0))))
+            self.nodes.append(Node.Spawn(i, self.getSpawnLocation(i, section_size)))
 
     def getLocation(self, x_data, y_data):
         y_index = 0
@@ -237,12 +224,32 @@ class Map:
             y_location = N_MAP_SQ_Y - y_location
 
         return (x_location, y_location)
-    
-    def getPlayableLocation(self, ix, iy, section_width, section_height, l_edge, r_edge, t_edge, b_edge):
+
+    def getStrongholdLocation(self, i, section_size):
+        if self.orientation == Orientation.TopDown:
+            return self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), N_MAP_SQ_Y)
+        elif self.orientation == Orientation.BottomUp:
+            return  self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), 0)
+        elif self.orientation == Orientation.RightFacing:
+            return  self.getLocation(0, (i, section_size, L_EDGE + PATH_HALF, 0))
+        elif self.orientation == Orientation.LeftFacing:
+            return  self.getLocation(N_MAP_SQ_X, (i, section_size, L_EDGE + PATH_HALF, 0))
+
+    def getSpawnLocation(self, i, section_size):
+        if self.orientation == Orientation.TopDown:
+            return self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), 0)
+        elif self.orientation == Orientation.BottomUp:
+            return self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), N_MAP_SQ_Y)
+        elif self.orientation == Orientation.RightFacing:
+            return self.getLocation(N_MAP_SQ_X, (i, section_size, L_EDGE + PATH_HALF, 0))
+        elif self.orientation == Orientation.LeftFacing:
+            return self.getLocation(0, (i, section_size, L_EDGE + PATH_HALF, 0))
+
+    def getPlayableLocation(self, ix, iy, section_width, section_height):
         if self.orientation in [Orientation.TopDown, Orientation.BottomUp]:
-            return(self.getLocation((ix, section_width, l_edge, r_edge), (iy, section_height, t_edge, b_edge)))
+            return(self.getLocation((ix, section_width, L_EDGE + PATH_HALF, 0), (iy, section_height, PATH_HALF, -PATH_HALF)))
         elif self.orientation in [Orientation.LeftFacing, Orientation.RightFacing]:
-            return(self.getLocation((iy, section_height, t_edge, b_edge), (ix, section_width, l_edge, r_edge)))
+            return(self.getLocation((iy, section_height, PATH_HALF, -PATH_HALF), (ix, section_width, L_EDGE + PATH_HALF, 0)))
 
 
     def generate(self):
