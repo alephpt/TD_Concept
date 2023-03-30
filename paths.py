@@ -157,17 +157,17 @@ class Map:
         
         if self.player_layers == 1:
             layer_count = len(self.playable_nodes)
-            section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // (layer_count - 1)
+            section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // (layer_count)
 
             for i in range(layer_count):
                 self.nodes.append(Node.Solo(i, section_width * i + L_EDGE + PATH_HALF, section_width * (i + 1), T_EDGE, B_EDGE))
         else:
-            layer_height = N_MAP_SQ_Y // (self.player_layers + 1)
+            layer_height = N_MAP_SQ_Y // (self.player_layers)
 
             # for every layer
             for layer in range(self.player_layers):
                 players_per_layer = len([n for n in self.playable_nodes if n['layer'] == layer])
-                section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // (players_per_layer - 1)
+                section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // (players_per_layer)
                 
                 for i in range(self.playable_nodes):
                     if self.playable_nodes[i]['layer'] == layer:
@@ -201,7 +201,7 @@ class Map:
                                                            layer_height * layer, \
                                                            layer_height * (layer + 1)))
 
-        for spawn_node in self.spawn_points:
+        for i in range(n_spawns):
             self.nodes.append(Node.Spawn(i, spawn_sections * i + L_EDGE + PATH_HALF, spawn_sections * (i + 1)))
 
     def generate(self):
@@ -221,7 +221,7 @@ class Game:
 
 
 def main():
-    players = 2
+    players = 3
     game_mode = GameMode.Cooperative
     game = Game(game_mode, players)
     game.world_map.generate()
