@@ -177,13 +177,13 @@ class Map:
 
         for i in range(n_strongholds):
             if self.orientation == Orientation.TopDown:
-                self.nodes.append(Node.Spawn(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), N_MAP_SQ_Y)))
+                self.nodes.append(Node.Stronghold(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), N_MAP_SQ_Y)))
             elif self.orientation == Orientation.BottomUp:
-                self.nodes.append(Node.Spawn(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), 0)))
+                self.nodes.append(Node.Stronghold(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), 0)))
             elif self.orientation == Orientation.RightFacing:
-                self.nodes.append(Node.Spawn(i, self.getLocation(0, (i, section_size, L_EDGE + PATH_HALF, 0))))
+                self.nodes.append(Node.Stronghold(i, self.getLocation(0, (i, section_size, L_EDGE + PATH_HALF, 0))))
             elif self.orientation == Orientation.LeftFacing:
-                self.nodes.append(Node.Spawn(i, self.getLocation(N_MAP_SQ_X, (i, section_size, L_EDGE + PATH_HALF, 0))))
+                self.nodes.append(Node.Stronghold(i, self.getLocation(N_MAP_SQ_X, (i, section_size, L_EDGE + PATH_HALF, 0))))
 
     def instantiateSpawns(self):
         n_spawns = len(self.spawn_points)
@@ -211,7 +211,7 @@ class Map:
         x_location = 0
         y_location = 0
 
-        if type(y_data) is tuple:
+        if isinstance(x_data, tuple):
             x_index = x_data[0]
             x_section_size = x_data[1]
             left_offset = x_data[2]
@@ -220,7 +220,7 @@ class Map:
         else:
             x_location = x_data
 
-        if type(y_data) is tuple:
+        if isinstance(y_data, tuple):
             y_index = y_data[0]
             y_section_size = y_data[1]
             top_offset = y_data[2]
@@ -229,8 +229,10 @@ class Map:
         else:
             y_location = y_data
         
+        # if we are inverting the map vertically, we need to flip the locations horizontally
         if self.orientation == Orientation.BottomUp:
             x_location = N_MAP_SQ_X - x_location
+        # if we flip the map horizontally, we need to flip the locations vertically
         elif self.orientation == Orientation.RightFacing:
             y_location = N_MAP_SQ_Y - y_location
 
