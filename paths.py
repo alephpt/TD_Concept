@@ -27,7 +27,7 @@ B_EDGE = N_MAP_SQ_Y - T_EDGE
 NODE_RADIUS = 30
 
 pygame.init()
-pygame.display.set_caption("Path Mapping")
+pygame.display.set_caption('Path Mapping')
 
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -103,10 +103,10 @@ class Node:
 
 class Map:
     def __init__(self, game_mode, n_players, template):
-        self.spawn_points = template["spawn"]
-        self.playable_nodes = template["playable"]
-        self.strongholds = template["stronghold"]
-        self.player_layers = template["playable_layers"]
+        self.spawn_points = template['spawn']
+        self.playable_nodes = template['playable']
+        self.strongholds = template['stronghold']
+        self.player_layers = template['playable_layers']
         self.game_mode = game_mode
         self.n_players = n_players
         self.nodes = []
@@ -121,8 +121,30 @@ class Map:
     def connectEdges(self):
         for node in self.nodes:
             if node.type == NodeType.Spawn:
-                node_map = self.spawn_points[node.index]["next_node"]
-                next_node_type = node_map["type"]
+                if node_list := self.spawn_points[node.index]['next_nodes']:
+                    for n in node_list:
+                        for next_node in self.nodes:
+                            if next_node.type in [NodeType.Entry, NodeType.Solo] and n["index"] == next_node.index:
+                                node.next_node.append(next_node)
+                                break
+            elif node.type in [NodeType.Solo, NodeType.Exit] and \
+                 self.playable_nodes[node.index]['next_nodes'][0]['type'] == 'stronghold':
+                if node_list := self.strongholds[node.index - 1]['next_nodes']:
+                    for n in node_list:
+                        for next_node in self.nodes:
+                            if next_node.type == NodeType.Target and next_node.index == n["index"]:
+                                node.next_node.append(next_node)
+                                break
+            elif node.type in [NodeType.Entry, NodeType.Intermediate] and \
+                 self.playable_nodes[node.index]['next_nodes']['type'] == 'playable':
+                if next_index := self.playable_nodes[node.index]['next_nodes']:
+                    for n in node_list:
+                        for next_node in self.nodes:
+                            if next_node.type in [NodeType.Intermediate, NodeType.Exit] \
+                                and next_node.index == n["index"]:
+                                node.next_node.append(next_node)
+            elif node.type == NodeType.Target:
+                node.next_node = None
 
     def instantiateNodes(self, ):
         n_strongholds = len(self.strongholds)
@@ -138,20 +160,20 @@ class Map:
             section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // (layer_count - 1)
 
             for i in range(layer_count):
-                self.node.append(Node.Solo(i, section_width * i + L_EDGE + PATH_HALF, section_width * (i + 1)), T_EDGE, B_EDGE)
+                self.nodes.append(Node.Solo(i, section_width * i + L_EDGE + PATH_HALF, section_width * (i + 1), T_EDGE, B_EDGE))
         else:
             layer_height = N_MAP_SQ_Y // (self.player_layers + 1)
 
             # for every layer
             for layer in range(self.player_layers):
-                players_per_layer = len([n for n in self.playable_nodes if n["layer"] == layer])
+                players_per_layer = len([n for n in self.playable_nodes if n['layer'] == layer])
                 section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // (players_per_layer - 1)
                 
                 for i in range(self.playable_nodes):
-                    if self.playable_nodes[i]["layer"] == layer:
+                    if self.playable_nodes[i]['layer'] == layer:
                         if layer == 0:
                             # check if next node is a stronghold -> solo node
-                            if self.playable_nodes[i]["next_node"]["type"] == "stronghold":
+                            if self.playable_nodes[i]['next_nodes'][0]['type'] == 'stronghold':
                                 self.node.append(Node.Solo(i, \
                                                            section_width * i + L_EDGE + PATH_HALF, \
                                                            section_width * (i + 1), \
@@ -165,7 +187,7 @@ class Map:
                                                            layer_height * layer, \
                                                            layer_height * (layer + 1)))
                         # else if a nodes next type is stronghold it's an exit node
-                        elif self.playable_nodes[i]["next_node"]["type"] == "stronghold":
+                        elif self.playable_nodes[i]['next_nodes'][0]['type'] == 'stronghold':
                             self.node.append(Node.Exit(i, \
                                                            section_width * i + L_EDGE + PATH_HALF, \
                                                            section_width * (i + 1), \
@@ -204,8 +226,6 @@ def main():
     game = Game(game_mode, players)
     game.world_map.generate()
 
-    print(json.dumps(game.world_map.data, indent=2))
-    
     while game.running:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
@@ -218,6 +238,6 @@ def main():
         clock.tick(15)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
     
