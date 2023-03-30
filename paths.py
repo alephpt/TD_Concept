@@ -1,3 +1,4 @@
+from locale import getlocale
 import pygame
 from enum import Enum
 import random
@@ -61,6 +62,11 @@ class GameMode(Enum):
     Survival = 2
     Combative = 3
 
+class Orientation(Enum):
+    RightFacing = 0
+    TopDown = 1
+    LeftFacing = 2
+    BottomUp = 3
     
 class Node:
     def __init__(self, node_type, index, color, location_x, location_y, radius):
@@ -76,37 +82,37 @@ class Node:
         pygame.draw.circle(screen, self.color, (self.x_loc, self.y_loc), self.radius)
 
     @classmethod
-    def Solo(cls, index, l_edge, r_edge, t_edge, b_edge):
-        return cls(NodeType.Solo, index, Color.Purple.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
+    def Solo(cls, index, location):
+        return cls(NodeType.Solo, index, Color.Purple.value, location[0], location[1], NODE_RADIUS)
 
     @classmethod
-    def Entry(cls, index, l_edge, r_edge, t_edge, b_edge):
-        return cls(NodeType.Entry, index, Color.Green.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
+    def Entry(cls, index, location):
+        return cls(NodeType.Entry, index, Color.Green.value, location[0], location[1], NODE_RADIUS)
 
     @classmethod
-    def Intermediate(cls, index, l_edge, r_edge, t_edge, b_edge):
-        return cls(NodeType.Intermediate, index, Color.Orange.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
+    def Intermediate(cls, index, location):
+        return cls(NodeType.Intermediate, index, Color.Orange.value, location[0], location[1], NODE_RADIUS)
 
     @classmethod
-    def Exit(cls, index, l_edge, r_edge, t_edge, b_edge):
-        return cls(NodeType.Exit, index, Color.Red.value, random.randint(l_edge, r_edge), random.randint(t_edge, b_edge), NODE_RADIUS)
+    def Exit(cls, index, location):
+        return cls(NodeType.Exit, index, Color.Red.value, location[0], location[1], NODE_RADIUS)
 
     @classmethod
-    def Spawn(cls, index, l_edge, r_edge):
-        return cls(NodeType.Spawn, index, Color.LightRed.value, random.randint(l_edge, r_edge), 0, NODE_RADIUS // 2)
+    def Spawn(cls, index, location):
+        return cls(NodeType.Spawn, index, Color.LightRed.value, location[0], location[1], NODE_RADIUS // 2)
 
     @classmethod
-    def Stronghold(cls, index, l_edge, r_edge):
-        return cls(NodeType.Stronghold, index, Color.LightGreen.value, random.randint(l_edge, r_edge), N_MAP_SQ_Y, NODE_RADIUS // 2)
-
+    def Stronghold(cls, index,location):
+        return cls(NodeType.Stronghold, index, Color.LightGreen.value, location[0], location[1], NODE_RADIUS // 2)
 
 
 class Map:
-    def __init__(self, game_mode, n_players, template):
+    def __init__(self, game_mode, template, orientation, n_players):
+        self.orientation = orientation
         self.spawn_points = template['spawn']
         self.playable_nodes = template['playable']
         self.strongholds = template['stronghold']
-        self.player_layers = template['playable_layers']
+        self.playable_layers = template['playable_layers']
         self.game_mode = game_mode
         self.n_players = n_players
         self.nodes = []
@@ -139,59 +145,103 @@ class Map:
                 if next_node := node_map.get((next_node_data['type'], next_node_data['index'])):
                     node.next_node.append(next_node)
 
-
-    def instantiatePlayables(self, ):
-        if self.player_layers == 1:
+    def instantiatePlayables(self):
+        if self.playable_layers == 1:
             layer_count = len(self.playable_nodes)
             section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // (layer_count)
 
             for i in range(layer_count):
                 self.nodes.append(Node.Solo(i, section_width * i + L_EDGE + PATH_HALF, section_width * (i + 1), T_EDGE, B_EDGE))
         else:
-            layer_height = N_MAP_SQ_Y // (self.player_layers)
+            section_height = N_MAP_SQ_Y // (self.playable_layers)
             idx = 0
-            # for every layer
-            for layer in range(self.player_layers):
+
+            for layer in range(self.playable_layers):
                 nodes = [n for n in self.playable_nodes if n['layer'] == layer]
                 section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // len(nodes)
-                # for every node in a layer
                 for i in range(len(nodes)):
-                        # if this is the first layer it's an entry node
+                        location = self.getPlayableLocation(i, layer, section_width, section_height, L_EDGE + PATH_HALF, 0, PATH_HALF, -PATH_HALF)
+
                         if layer == 0:
-                            self.nodes.append(Node.Entry(idx, \
-                                                        section_width * i + L_EDGE + PATH_HALF, \
-                                                        section_width * (i + 1), \
-                                                        layer_height * layer + PATH_HALF, \
-                                                        layer_height * (layer + 1) - PATH_HALF))
-                        # else if a nodes next type is stronghold it's an exit node
+                            self.nodes.append(Node.Entry(idx, location))
                         elif self.playable_nodes[idx]['next_nodes'][0]['type'] == 'Stronghold':
-                            self.nodes.append(Node.Exit(idx, \
-                                                        section_width * i + L_EDGE + PATH_HALF, \
-                                                        section_width * (i + 1), \
-                                                        layer_height * layer + PATH_HALF, \
-                                                        layer_height * (layer + 1) - PATH_HALF))
-                        # else it's in the middle
+                            self.nodes.append(Node.Exit(idx, location))
                         else:
-                            self.nodes.append(Node.Intermediate(idx, \
-                                                               section_width * i + L_EDGE + PATH_HALF, \
-                                                               section_width * (i + 1), \
-                                                               layer_height * layer + PATH_HALF, \
-                                                               layer_height * (layer + 1) - PATH_HALF))
+                            self.nodes.append(Node.Intermediate(idx, location))
+
                         idx += 1
 
     def instantiateStrongholds(self):
         n_strongholds = len(self.strongholds)
-        stronghold_sections = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_strongholds
+        section_size = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_strongholds
 
         for i in range(n_strongholds):
-            self.nodes.append(Node.Stronghold(i, stronghold_sections * i + L_EDGE + PATH_HALF, stronghold_sections * (i + 1)))
+            if self.orientation == Orientation.TopDown:
+                self.nodes.append(Node.Spawn(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), N_MAP_SQ_Y)))
+            elif self.orientation == Orientation.BottomUp:
+                self.nodes.append(Node.Spawn(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), 0)))
+            elif self.orientation == Orientation.RightFacing:
+                self.nodes.append(Node.Spawn(i, self.getLocation(0, (i, section_size, L_EDGE + PATH_HALF, 0))))
+            elif self.orientation == Orientation.LeftFacing:
+                self.nodes.append(Node.Spawn(i, self.getLocation(N_MAP_SQ_X, (i, section_size, L_EDGE + PATH_HALF, 0))))
 
     def instantiateSpawns(self):
         n_spawns = len(self.spawn_points)
-        spawn_sections = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_spawns
+        section_size = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_spawns
 
         for i in range(n_spawns):
-            self.nodes.append(Node.Spawn(i, spawn_sections * i + L_EDGE + PATH_HALF, spawn_sections * (i + 1)))
+            if self.orientation == Orientation.TopDown:
+                self.nodes.append(Node.Spawn(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), 0)))
+            elif self.orientation == Orientation.BottomUp:
+                self.nodes.append(Node.Spawn(i, self.getLocation((i, section_size, L_EDGE + PATH_HALF, 0), N_MAP_SQ_Y)))
+            elif self.orientation == Orientation.RightFacing:
+                self.nodes.append(Node.Spawn(i, self.getLocation(N_MAP_SQ_X, (i, section_size, L_EDGE + PATH_HALF, 0))))
+            elif self.orientation == Orientation.LeftFacing:
+                self.nodes.append(Node.Spawn(i, self.getLocation(0, (i, section_size, L_EDGE + PATH_HALF, 0))))
+
+    def getLocation(self, x_data, y_data):
+        y_index = 0
+        y_section_size = 0
+        top_offset = 0
+        bottom_offset = 0
+        x_index = 0
+        x_section_size = 0
+        left_offset = 0
+        right_offset = 0
+        x_location = 0
+        y_location = 0
+
+        if type(y_data) is tuple:
+            x_index = x_data[0]
+            x_section_size = x_data[1]
+            left_offset = x_data[2]
+            right_offset = x_data[3]
+            x_location = random.randint(x_section_size * x_index + left_offset, x_section_size * (x_index + 1) + right_offset)
+        else:
+            x_location = x_data
+
+        if type(y_data) is tuple:
+            y_index = y_data[0]
+            y_section_size = y_data[1]
+            top_offset = y_data[2]
+            bottom_offset = y_data[3]
+            y_location = random.randint(y_section_size * y_index + top_offset, y_section_size * (y_index + 1) + bottom_offset)
+        else:
+            y_location = y_data
+        
+        if self.orientation == Orientation.BottomUp:
+            x_location = N_MAP_SQ_X - x_location
+        elif self.orientation == Orientation.RightFacing:
+            y_location = N_MAP_SQ_Y - y_location
+
+        return (x_location, y_location)
+    
+    def getPlayableLocation(self, ix, iy, section_width, section_height, l_edge, r_edge, t_edge, b_edge):
+        if self.orientation in [Orientation.TopDown, Orientation.BottomUp]:
+            return(self.getLocation((ix, section_width, l_edge, r_edge), (iy, section_height, t_edge, b_edge)))
+        elif self.orientation in [Orientation.LeftFacing, Orientation.RightFacing]:
+            return(self.getLocation((iy, section_height, t_edge, b_edge), (ix, section_width, l_edge, r_edge)))
+
 
     def generate(self):
         self.instantiateSpawns()
@@ -199,22 +249,22 @@ class Map:
         self.instantiatePlayables()
         self.connectEdges()
 
-
             
 class Game:
-    def __init__(self, game_mode, n_players):
+    def __init__(self, game_mode, orientation, n_players):
         self.running = True
         self.game_mode = game_mode
         self.map_data = json.load(open('graph.json', 'r'))
         self.map_template = self.map_data[n_players - 1]['layouts'][0] #random.choice(self.map_data[n_players - 1]['layouts'])
         self.n_players = n_players
-        self.world_map = Map(game_mode, n_players, self.map_template)
+        self.world_map = Map(game_mode, self.map_template, orientation, n_players)
 
 
 def main():
     players = 3 #random.randint(1, 3)
+    orientation = Orientation.TopDown
     game_mode = GameMode.Cooperative
-    game = Game(game_mode, players)
+    game = Game(game_mode, orientation, players)
     game.world_map.generate()
 
     while game.running:
@@ -227,7 +277,6 @@ def main():
         
         pygame.display.update()
         clock.tick(15)
-
 
 if __name__ == '__main__':
     main()
