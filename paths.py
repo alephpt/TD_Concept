@@ -52,7 +52,7 @@ class NodeType(Enum):
     Entry = 2
     Intermediate = 3
     Exit = 4
-    Target = 5
+    Stronghold = 5
 
 
 class GameMode(Enum):
@@ -96,8 +96,8 @@ class Node:
         return cls(NodeType.Spawn, index, Color.LightRed.value, random.randint(l_edge, r_edge), 0, NODE_RADIUS // 2)
 
     @classmethod
-    def Target(cls, index, l_edge, r_edge):
-        return cls(NodeType.Target, index, Color.LightGreen.value, random.randint(l_edge, r_edge), N_MAP_SQ_Y, NODE_RADIUS // 2)
+    def Stronghold(cls, index, l_edge, r_edge):
+        return cls(NodeType.Stronghold, index, Color.LightGreen.value, random.randint(l_edge, r_edge), N_MAP_SQ_Y, NODE_RADIUS // 2)
 
 
 
@@ -113,38 +113,32 @@ class Map:
     
     def draw(self):
         for this_node in self.nodes:
-            if this_node.next_node:
+            if this_node.next_node is not None:
                 for next_node in this_node.next_node:
                     pygame.draw.line(screen, Color.Brown.value, (this_node.x_loc, this_node.y_loc), (next_node.x_loc, next_node.y_loc), 8)
-            this_node.draw()        
+        
+        for node in self.nodes:
+            node.draw()
 
     def connectEdges(self):
+        node_map = {(node.type.name, node.index): node for node in self.nodes}
+
         for node in self.nodes:
-            if node.type == NodeType.Spawn:
-                if node_list := self.spawn_points[node.index]['next_nodes']:
-                    for n in node_list:
-                        for next_node in self.nodes:
-                            if next_node.type in [NodeType.Entry, NodeType.Solo] and n["index"] == next_node.index:
-                                node.next_node.append(next_node)
-                                break
-            elif node.type in [NodeType.Solo, NodeType.Exit] and \
-                 self.playable_nodes[node.index]['next_nodes'][0]['type'] == 'stronghold':
-                if node_list := self.strongholds[node.index - 1]['next_nodes']:
-                    for n in node_list:
-                        for next_node in self.nodes:
-                            if next_node.type == NodeType.Target and next_node.index == n["index"]:
-                                node.next_node.append(next_node)
-                                break
-            elif node.type in [NodeType.Entry, NodeType.Intermediate] and \
-                 self.playable_nodes[node.index]['next_nodes']['type'] == 'playable':
-                if next_index := self.playable_nodes[node.index]['next_nodes']:
-                    for n in node_list:
-                        for next_node in self.nodes:
-                            if next_node.type in [NodeType.Intermediate, NodeType.Exit] \
-                                and next_node.index == n["index"]:
-                                node.next_node.append(next_node)
-            elif node.type == NodeType.Target:
+            next_nodes = None
+
+            if node.type == NodeType.Stronghold:
                 node.next_node = None
+                continue
+            elif node.type == NodeType.Spawn:
+                next_nodes = self.spawn_points[node.index].get('next_nodes', [])
+            elif node.type in [NodeType.Solo, NodeType.Exit, NodeType.Entry, NodeType.Intermediate]:
+                next_nodes = self.playable_nodes[node.index].get('next_nodes', [])
+
+            for next_node_data in next_nodes:
+                print(node.type.name, node.index, "->", next_node_data['type'], next_node_data['index'])
+                if next_node := node_map.get((next_node_data['type'], next_node_data['index'])):
+                    node.next_node.append(next_node)
+
 
     def instantiateNodes(self, ):
         n_strongholds = len(self.strongholds)
@@ -153,7 +147,7 @@ class Map:
         spawn_sections = (N_MAP_SQ_X - PATH_WIDTH * 2) // n_spawns
 
         for i in range(n_strongholds):
-            self.nodes.append(Node.Target(i, stronghold_sections * i + L_EDGE + PATH_HALF, stronghold_sections * (i + 1)))
+            self.nodes.append(Node.Stronghold(i, stronghold_sections * i + L_EDGE + PATH_HALF, stronghold_sections * (i + 1)))
         
         if self.player_layers == 1:
             layer_count = len(self.playable_nodes)
@@ -163,43 +157,38 @@ class Map:
                 self.nodes.append(Node.Solo(i, section_width * i + L_EDGE + PATH_HALF, section_width * (i + 1), T_EDGE, B_EDGE))
         else:
             layer_height = N_MAP_SQ_Y // (self.player_layers)
+            prev_layer_n = 0
 
             # for every layer
             for layer in range(self.player_layers):
                 players_per_layer = len([n for n in self.playable_nodes if n['layer'] == layer])
                 section_width = (N_MAP_SQ_X - PATH_WIDTH * 2) // (players_per_layer)
                 
-                for i in range(self.playable_nodes):
+                for i in range(len(self.playable_nodes)):
+                    n = i - prev_layer_n
                     if self.playable_nodes[i]['layer'] == layer:
                         if layer == 0:
-                            # check if next node is a stronghold -> solo node
-                            if self.playable_nodes[i]['next_nodes'][0]['type'] == 'stronghold':
-                                self.node.append(Node.Solo(i, \
-                                                           section_width * i + L_EDGE + PATH_HALF, \
-                                                           section_width * (i + 1), \
-                                                           layer_height * layer, \
-                                                           layer_height * (layer + 1)))
-                            # else it's an entry node
-                            else: 
-                                self.node.append(Node.Entry(i, \
-                                                           section_width * i + L_EDGE + PATH_HALF, \
-                                                           section_width * (i + 1), \
-                                                           layer_height * layer, \
-                                                           layer_height * (layer + 1)))
+                            self.nodes.append(Node.Entry(i, \
+                                                        section_width * n + L_EDGE + PATH_HALF, \
+                                                        section_width * (n + 1), \
+                                                        layer_height * layer, \
+                                                        layer_height * (layer + 1)))
                         # else if a nodes next type is stronghold it's an exit node
-                        elif self.playable_nodes[i]['next_nodes'][0]['type'] == 'stronghold':
-                            self.node.append(Node.Exit(i, \
-                                                           section_width * i + L_EDGE + PATH_HALF, \
-                                                           section_width * (i + 1), \
+                        elif self.playable_nodes[i]['next_nodes'][0]['type'] == 'Stronghold':
+                            self.nodes.append(Node.Exit(i, \
+                                                           section_width * n + L_EDGE + PATH_HALF, \
+                                                           section_width * (n + 1), \
                                                            layer_height * layer, \
                                                            layer_height * (layer + 1)))
                         # else it's in the middle
                         else:
-                            self.node.append(Node.Intermediary(i, \
-                                                           section_width * i + L_EDGE + PATH_HALF, \
-                                                           section_width * (i + 1), \
+                            self.nodes.append(Node.Intermediary(i, \
+                                                           section_width * n + L_EDGE + PATH_HALF, \
+                                                           section_width * (n + 1), \
                                                            layer_height * layer, \
                                                            layer_height * (layer + 1)))
+
+                prev_layer_n += players_per_layer
 
         for i in range(n_spawns):
             self.nodes.append(Node.Spawn(i, spawn_sections * i + L_EDGE + PATH_HALF, spawn_sections * (i + 1)))
@@ -221,7 +210,7 @@ class Game:
 
 
 def main():
-    players = 3
+    players = random.randint(1, 3)
     game_mode = GameMode.Cooperative
     game = Game(game_mode, players)
     game.world_map.generate()

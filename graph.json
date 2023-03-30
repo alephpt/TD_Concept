@@ -8,7 +8,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 0
               }
             ]
@@ -18,7 +18,7 @@
           {
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 0
               }
             ]
@@ -41,7 +41,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 0
               }
             ]
@@ -49,7 +49,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 1
               }
             ]
@@ -60,7 +60,7 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 0
               }
             ]
@@ -69,7 +69,7 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 0
               }
             ]
@@ -87,7 +87,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 0
               }
             ]
@@ -95,7 +95,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 1
               }
             ]
@@ -106,7 +106,7 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 0
               }
             ]
@@ -115,7 +115,7 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 1
               }
             ]
@@ -136,12 +136,12 @@
     "players": 3,
     "layouts": [
       {
-        "playable_layers": 1,
+        "playable_layers": 2,
         "spawn": [
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Entry",
                 "index": 0
               }
             ]
@@ -149,7 +149,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Entry",
                 "index": 1
               }
             ]
@@ -160,7 +160,7 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Exit",
                 "index": 2
               }
             ]
@@ -169,16 +169,16 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Exit",
                 "index": 2
               }
             ]
           },
           {
-            "layer": 0,
+            "layer": 1,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 0
               }
             ]
@@ -196,7 +196,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 0
               }
             ]
@@ -204,7 +204,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 1
               }
             ]
@@ -212,7 +212,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 2
               }
             ]
@@ -223,7 +223,7 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 0
               }
             ]
@@ -232,11 +232,11 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 0
               },
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 1
               }
             ]
@@ -245,7 +245,7 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 1
               }
             ]
@@ -266,7 +266,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 0
               }
             ]
@@ -274,7 +274,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 1
               }
             ]
@@ -282,7 +282,7 @@
           {
             "next_nodes": [
               {
-                "type": "playable",
+                "type": "Solo",
                 "index": 2
               }
             ]
@@ -293,7 +293,7 @@
             "layer":  0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 0
               }
             ]
@@ -302,7 +302,7 @@
             "layer": 0,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 1
               }
             ]
@@ -311,7 +311,7 @@
             "layer": 1,
             "next_nodes": [
               {
-                "type": "stronghold",
+                "type": "Stronghold",
                 "index": 2
               }
             ]
