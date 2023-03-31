@@ -174,6 +174,7 @@ class Map:
 
             for layer in range(self.playable_layers):
                 nodes = [n for n in self.playable_nodes if n['layer'] == layer]
+                n_nodes = len(nodes)
                 section_width = self.getXDimension(len(nodes))
                 for i in range(len(nodes)):
                         location = self.getPlayableLocation(i, layer, section_width, section_height)
@@ -206,34 +207,10 @@ class Map:
         for i in range(n_spawns):
             self.nodes.append(Node.Spawn(i, self.getSpawnLocation(i, section_size)))
 
+    # if the input values are tuples, we calculate the section size * the index + the offset
     def getLocation(self, x_data, y_data):
-        y_index = 0
-        y_section_size = 0
-        x_index = 0
-        x_section_size = 0
-        x_location = 0
-        y_location = 0
-
-        if isinstance(x_data, tuple):
-            x_index, x_section_size  = x_data
-            x_location = random.randint(x_section_size * x_index + PATH_WIDTH + PATH_HALF, x_section_size * (x_index + 1))
-        else:
-            x_location = x_data
-
-        if isinstance(y_data, tuple):
-            y_index ,y_section_size = y_data
-            y_location = random.randint(y_section_size * y_index + PATH_WIDTH + PATH_HALF, y_section_size * (y_index + 1))
-        else:
-            y_location = y_data
-        
-        # Todo: Determine if we need this? :think:
-        # if we are inverting the map vertically, we need to flip the locations horizontally
-        # if self.orientation == Orientation.BottomUp:
-        #    x_location = N_MAP_SQ_X - x_location
-        # if we are inverting the map horizontally, we need to flip the locations vertically
-        # elif self.orientation == Orientation.RightFacing:
-        #    y_location = N_MAP_SQ_Y - y_location
-
+        x_location = random.randint(x_data[1] * x_data[0] + PATH_WIDTH + PATH_HALF, x_data[1] * (x_data[0] + 1) + PATH_HALF) if isinstance(x_data, tuple) else x_data
+        y_location = random.randint(y_data[1] * y_data[0] + PATH_WIDTH + PATH_HALF, y_data[1] * (y_data[0] + 1) + PATH_HALF) if isinstance(y_data, tuple) else y_data
 
         return (x_location, y_location)
 
@@ -276,14 +253,14 @@ class Game:
         self.running = True
         self.game_mode = game_mode
         self.map_data = json.load(open('graph.json', 'r'))
-        self.map_template = self.map_data[n_players - 1]['layouts'][0] #random.choice(self.map_data[n_players - 1]['layouts'])
+        self.map_template = random.choice(self.map_data[n_players - 1]['layouts'])
         self.n_players = n_players
         self.world_map = Map(game_mode, self.map_template, orientation, n_players)
 
 
 def main():
-    players = 3 #random.randint(1, 3)
-    orientation = Orientation.RightFacing
+    players = random.randint(1, 3)
+    orientation = Orientation.TopDown
     game_mode = GameMode.Cooperative
     game = Game(game_mode, orientation, players)
     game.world_map.generate()
