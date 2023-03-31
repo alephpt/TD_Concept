@@ -106,7 +106,7 @@ class Node:
     def Stronghold(cls, index,location):
         return cls(NodeType.Stronghold, index, Color.LightGreen.value, location[0], location[1], NODE_RADIUS // 2)
 
-
+# Responsible for generating the Node Map
 class Map:
     def __init__(self, game_mode, template, orientation, n_players):
         self.orientation = orientation
@@ -118,6 +118,7 @@ class Map:
         self.n_players = n_players
         self.nodes = []
     
+    # render all of our connections, and nodes
     def draw(self):
         for this_node in self.nodes:
             if this_node.next_node is not None:
@@ -127,6 +128,7 @@ class Map:
         for node in self.nodes:
             node.draw()
 
+    # Looks up a nodes configuration based on a nodes index and appends the associated next_node
     def connectEdges(self):
         node_map = {(node.type.name, node.index): node for node in self.nodes}
 
@@ -146,6 +148,67 @@ class Map:
                 if next_node := node_map.get((next_node_data['type'], next_node_data['index'])):
                     node.next_node.append(next_node)
 
+    # if we have a single playable layer we add solo nodes, otherwise we add Entry, Intermediate and Exit nodes
+    def instantiatePlayables(self):
+        # gets number of playable nodes, section dimensions, and adds solo nodes if we only have 1 layer
+        if self.playable_layers == 1:
+            layer_count = len(self.playable_nodes)
+            section_width, section_height = self.getSectionDimensions(layer_count, 1)
+
+            for i in range(layer_count):
+                self.nodes.append(Node.Solo(i, self.getPlayableLocation(i, 0, section_width, section_height)))
+        # Otherwise we have no solo nodes and we need to account for sectioning
+        else:
+            section_height = self.getYDimension(self.playable_layers)
+            idx = 0
+
+            for layer in range(self.playable_layers):
+                nodes = [n for n in self.playable_nodes if n['layer'] == layer]
+                n_nodes = len(nodes)
+                section_width = self.getXDimension(n_nodes)
+
+                for i in range(n_nodes):
+                        location = self.getPlayableLocation(i, layer, section_width, section_height)
+
+                        # Adjust location if we invert vertically or horizontally
+                        if self.orientation == Orientation.BottomUp:
+                            location = (location[0], N_MAP_SQ_Y - location[1])
+                        if self.orientation == Orientation.RightFacing:
+                            location = (N_MAP_SQ_X - location[0], location[1])
+
+                        # If we are in the first layer it's an entry node
+                        if layer == 0:
+                            self.nodes.append(Node.Entry(idx, location))
+                        # If the next node is a stronghold we have an exit
+                        elif self.playable_nodes[idx]['next_nodes'][0]['type'] == 'Stronghold':
+                            self.nodes.append(Node.Exit(idx, location))
+                        # Otherwise we have an intermediary node
+                        else:
+                            self.nodes.append(Node.Intermediate(idx, location))
+
+                        idx += 1
+
+    # gets number of strongholds and section size, and appends stronghold nodes based on location
+    def instantiateStrongholds(self):
+        n_strongholds = len(self.strongholds)
+        section_size = self.getXDimension(n_strongholds)
+
+        for i in range(n_strongholds):
+            self.nodes.append(Node.Stronghold(i, self.getStrongholdLocation(i, section_size)))
+    
+    # gets number of spawns and section size, and appends spawn nodes based on location
+    def instantiateSpawns(self):
+        n_spawns = len(self.spawn_points)
+        section_size = self.getXDimension(n_spawns)
+        
+        for i in range(n_spawns):
+            self.nodes.append(Node.Spawn(i, self.getSpawnLocation(i, section_size)))
+
+    # If the Orientation is Horizontal, we want to swap the Dimensions of X and Y for the Screen
+    # Note: This function is NOT rotating anything. Only swaping Width and Height based on orientation
+    def getSectionDimensions(self, x_layers, y_layers): 
+        return (self.getXDimension(x_layers), self.getYDimension(y_layers))
+
     def getXDimension(self, divisor):
         return (N_MAP_SQ_X - PATH_WIDTH * 2) // divisor \
                 if self.orientation in [Orientation.TopDown, Orientation.BottomUp] else \
@@ -156,64 +219,7 @@ class Map:
                 if self.orientation in [Orientation.TopDown, Orientation.BottomUp] else \
                 (N_MAP_SQ_X - PATH_WIDTH * 2) // divisor
 
-    def getSectionDimensions(self, x_layers, y_layers): 
-        # If the Orientation is Horizontal, we want to swap the Dimensions of X and Y for the Screen
-        # Note: This function is note rotating anything, only swapping Height for Width
-        return (self.getXDimension(x_layers), self.getYDimension(y_layers))
-
-    def instantiatePlayables(self):
-        if self.playable_layers == 1:
-            layer_count = len(self.playable_nodes)
-            section_width, section_height = self.getSectionDimensions(layer_count, 1)
-
-            for i in range(layer_count):
-                self.nodes.append(Node.Solo(i, self.getPlayableLocation(i, 0, section_width, section_height)))
-        else:
-            section_height = self.getYDimension(self.playable_layers)
-            idx = 0
-
-            for layer in range(self.playable_layers):
-                nodes = [n for n in self.playable_nodes if n['layer'] == layer]
-                n_nodes = len(nodes)
-                section_width = self.getXDimension(len(nodes))
-                for i in range(len(nodes)):
-                        location = self.getPlayableLocation(i, layer, section_width, section_height)
-
-                        if self.orientation == Orientation.BottomUp:
-                            location = (location[0], N_MAP_SQ_Y - location[1])
-                        if self.orientation == Orientation.RightFacing:
-                            location = (N_MAP_SQ_X - location[0], location[1])
-
-                        if layer == 0:
-                            self.nodes.append(Node.Entry(idx, location))
-                        elif self.playable_nodes[idx]['next_nodes'][0]['type'] == 'Stronghold':
-                            self.nodes.append(Node.Exit(idx, location))
-                        else:
-                            self.nodes.append(Node.Intermediate(idx, location))
-
-                        idx += 1
-
-    def instantiateStrongholds(self):
-        n_strongholds = len(self.strongholds)
-        section_size = self.getXDimension(n_strongholds)
-
-        for i in range(n_strongholds):
-            self.nodes.append(Node.Stronghold(i, self.getStrongholdLocation(i, section_size)))
-
-    def instantiateSpawns(self):
-        n_spawns = len(self.spawn_points)
-        section_size = self.getXDimension(n_spawns)
-        
-        for i in range(n_spawns):
-            self.nodes.append(Node.Spawn(i, self.getSpawnLocation(i, section_size)))
-
-    # if the input values are tuples, we calculate the section size * the index + the offset
-    def getLocation(self, x_data, y_data):
-        x_location = random.randint(x_data[1] * x_data[0] + PATH_WIDTH + PATH_HALF, x_data[1] * (x_data[0] + 1) + PATH_HALF) if isinstance(x_data, tuple) else x_data
-        y_location = random.randint(y_data[1] * y_data[0] + PATH_WIDTH + PATH_HALF, y_data[1] * (y_data[0] + 1) + PATH_HALF) if isinstance(y_data, tuple) else y_data
-
-        return (x_location, y_location)
-
+    # The following 3 location functions are responsible for 'rotating' the orientation
     def getStrongholdLocation(self, i, section_size):
         if self.orientation == Orientation.TopDown:
             return self.getLocation((i, section_size), N_MAP_SQ_Y)
@@ -240,6 +246,13 @@ class Map:
         elif self.orientation in [Orientation.LeftFacing, Orientation.RightFacing]:
             return self.getLocation((iy, section_height), (ix, section_width))
 
+    # if the input values are tuples, we calculate the section size * the index + the offset
+    # X and Y data should swapped based on orientation before we ever get the location
+    def getLocation(self, x_data, y_data):
+        x_location = random.randint(x_data[1] * x_data[0] + PATH_WIDTH + PATH_HALF, x_data[1] * (x_data[0] + 1) + PATH_HALF) if isinstance(x_data, tuple) else x_data
+        y_location = random.randint(y_data[1] * y_data[0] + PATH_WIDTH + PATH_HALF, y_data[1] * (y_data[0] + 1) + PATH_HALF) if isinstance(y_data, tuple) else y_data
+
+        return (x_location, y_location)
 
     def generate(self):
         self.instantiateSpawns()
