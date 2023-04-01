@@ -268,12 +268,13 @@ class Game:
         self.game_mode = game_mode
         self.map_data = json.load(open('graph.json', 'r'))
         self.map_template = random.choice(self.map_data[n_players - 1]['layouts'])
+        print("graph #", self.map_data.index(self.map_template))
         self.n_players = n_players
         self.world_map = Map(game_mode, self.map_template, orientation, n_players)
 
 
 def main():
-    players = 7 #random.randint(1, 3)
+    players = 8 #random.randint(1, 3)
     orientation = Orientation.TopDown
     game_mode = GameMode.Cooperative
     game = Game(game_mode, orientation, players)
