@@ -5,29 +5,13 @@
       {
         "playable_layers": 1,
         "spawn": [
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 0
-              }
-            ]
-          }
+          { "next_nodes": [ { "type": "Solo", "index": 0 } ] }
         ],
         "playable": [
-          {
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 0
-              }
-            ]
-          }
+          { "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
         ],
         "stronghold": [
-          {
-            "next_nodes": null
-          }
+          { "next_nodes": null }
         ]
       }
     ]
@@ -38,96 +22,30 @@
       {
         "playable_layers": 1,
         "spawn": [
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 1
-              }
-            ]
-          }
+          { "next_nodes": [ { "type": "Solo", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Solo", "index": 1 } ] }
         ],
         "playable": [
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 0
-              }
-            ]
-          }
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
         ],
         "stronghold": [
-          {
-            "next_nodes": null
-          }
+          { "next_nodes": null }
         ]
       },
       {
         "playable_layers": 1,
         "spawn": [
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 1
-              }
-            ]
-          }
+          { "next_nodes": [ { "type": "Solo", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Solo", "index": 1 } ] }
         ],
         "playable": [
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 1
-              }
-            ]
-          }
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 1 } ] }
         ],
         "stronghold": [
-          {
-            "next_nodes": null
-          },
-          {
-            "next_nodes": null
-          }
+          { "next_nodes": null }, 
+          { "next_nodes": null }
         ]
       }
     ]
@@ -138,197 +56,422 @@
       {
         "playable_layers": 2,
         "spawn": [
-          {
-            "next_nodes": [
-              {
-                "type": "Entry",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "next_nodes": [
-              {
-                "type": "Entry",
-                "index": 1
-              }
-            ]
-          }
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] }
         ],
         "playable": [
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Exit",
-                "index": 2
-              }
-            ]
-          },
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Exit",
-                "index": 2
-              }
-            ]
-          },
-          {
-            "layer": 1,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 0
-              }
-            ]
-          }
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 2 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 2 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
         ],
         "stronghold": [
-          {
-            "next_nodes": null
-          }
+          { "next_nodes": null }
         ]
       },
       {
         "playable_layers": 1,
         "spawn": [
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 1
-              }
-            ]
-          },
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 2
-              }
-            ]
-          }
+          { "next_nodes": [ { "type": "Solo", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Solo", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Solo", "index": 2 } ] }
         ],
         "playable": [
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 0
-              },
-              {
-                "type": "Stronghold",
-                "index": 1
-              }
-            ]
-          },
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 1
-              }
-            ]
-          }
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 0 }, 
+                                        { "type": "Stronghold", "index": 1 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 1 } ] }
         ],
         "stronghold": [
-          {
-            "next_nodes": null
-          },
-          {
-            "next_nodes": null
-          }
+          { "next_nodes": null }, 
+          { "next_nodes": null }
         ]
       },
       {
         "playable_layers": 1,
         "spawn": [
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 1
-              }
-            ]
-          },
-          {
-            "next_nodes": [
-              {
-                "type": "Solo",
-                "index": 2
-              }
-            ]
-          }
+          { "next_nodes": [ { "type": "Solo", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Solo", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Solo", "index": 2 } ] }
         ],
         "playable": [
-          {
-            "layer":  0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 0
-              }
-            ]
-          },
-          {
-            "layer": 0,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 1
-              }
-            ]
-          },
-          {
-            "layer": 1,
-            "next_nodes": [
-              {
-                "type": "Stronghold",
-                "index": 2
-              }
-            ]
-          }
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Stronghold", "index": 1 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 2 } ] }
         ],
         "stronghold": [
-          {
-            "next_nodes": null
-          },
-          {
-            "next_nodes": null
-          },
-          {
-            "next_nodes": null
-          }
+          { "next_nodes": null },
+          { "next_nodes": null },
+          { "next_nodes": null }
+        ]
+      }
+    ]
+  },
+  {
+    "players": 4,
+    "layouts": [
+      {
+        "playable_layers": 2,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 3 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 2,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 2 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 3 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 2 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 2 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 3 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] } ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      }
+    ]
+  },
+  {
+    "players": 5,
+    "layouts": [
+      {
+        "playable_layers": 2,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 3 }, 
+                                        { "type": "Exit", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 2,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 3 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] } ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 2 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] } ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      }
+    ]
+  },
+  {
+    "players": 6,
+    "layouts": [
+      {
+        "playable_layers": 2,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 3 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 5 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 5 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 },
+                                        { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 5 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 5 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 5 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 1, "next_nodes": null },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] } ,
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 5 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 4 } ] } 
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 2 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 4 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 5 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      }
+    ]
+  },
+  {
+    "players": 7,
+    "layouts": [
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 3 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 5 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 5 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 5 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 },
+                                        { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 5 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 7 },
+                                        { "type": "Exit", "index": 8 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 6 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 7 } ] },
+          { "layer": 1, "next_nodes": null},
+          { "layer": 1, "next_nodes": null},
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 8 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null }
+        ]
+      }
+      ,
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 },
+                                        { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 4 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 5 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 6 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 1 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null },
+          { "next_nodes": null }
+        ]
+      },
+      {
+        "playable_layers": 3,
+        "spawn": [
+          { "next_nodes": [ { "type": "Entry", "index": 0 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 1 } ] },
+          { "next_nodes": [ { "type": "Entry", "index": 2 } ] }
+        ],
+        "playable": [
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 3 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Exit", "index": 7 },
+                                        { "type": "Exit", "index": 8 } ] },
+          { "layer": 0, "next_nodes": [ { "type": "Intermediate", "index": 6 } ] },
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 7 } ] },
+          { "layer": 1, "next_nodes": null},
+          { "layer": 1, "next_nodes": null},
+          { "layer": 1, "next_nodes": [ { "type": "Exit", "index": 8 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 0 } ] },
+          { "layer": 2, "next_nodes": [ { "type": "Stronghold", "index": 1 } ] }
+        ],
+        "stronghold": [
+          { "next_nodes": null },
+          { "next_nodes": null }
         ]
       }
     ]
   }
-]
+] 

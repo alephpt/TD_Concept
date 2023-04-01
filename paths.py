@@ -168,6 +168,7 @@ class Map:
                 section_width = self.getXDimension(n_nodes)
 
                 for i in range(n_nodes):
+                    if self.playable_nodes[idx]['next_nodes']:
                         location = self.getPlayableLocation(i, layer, section_width, section_height)
 
                         # Adjust location if we invert vertically or horizontally
@@ -186,7 +187,7 @@ class Map:
                         else:
                             self.nodes.append(Node.Intermediate(idx, location))
 
-                        idx += 1
+                    idx += 1
 
     # gets number of strongholds and section size, and appends stronghold nodes based on location
     def instantiateStrongholds(self):
@@ -272,7 +273,7 @@ class Game:
 
 
 def main():
-    players = random.randint(1, 3)
+    players = 7 #random.randint(1, 3)
     orientation = Orientation.TopDown
     game_mode = GameMode.Cooperative
     game = Game(game_mode, orientation, players)
