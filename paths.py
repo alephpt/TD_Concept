@@ -7,18 +7,21 @@ import math
 import json
 
 SQ_SIZE = 10
-N_MAP_SQ_X = 120
-N_MAP_SQ_Y = 80
+N_MAP_SQ_X = 180
+N_MAP_SQ_Y = 240
 
 MAP_WIDTH = N_MAP_SQ_X * SQ_SIZE
 MAP_HEIGHT = N_MAP_SQ_Y * SQ_SIZE
 
 WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 800
-CENTER_WIDTH = WINDOW_WIDTH / 2
-CENTER_HEIGHT = WINDOW_HEIGHT / 2
+WINDOW_CENTER_WIDTH = WINDOW_WIDTH // 2
+WINDOW_CENTER_HEIGHT = WINDOW_HEIGHT // 2
+WINDOW_SQ_X = math.ceil(WINDOW_WIDTH / SQ_SIZE)
+WINDOW_SQ_Y = math.ceil(WINDOW_HEIGHT / SQ_SIZE)
 
-PATH_WIDTH = max(13, min(22, N_MAP_SQ_X // 8))
+
+PATH_WIDTH = max(13, min(22, N_MAP_SQ_X // 10))
 PATH_HALF = PATH_WIDTH // 2
 
 L_EDGE = PATH_WIDTH
@@ -79,8 +82,8 @@ class Node:
         self.radius = radius
         self.next_node = []
 
-    def draw(self):
-        pygame.draw.circle(screen, self.color, (self.x_loc, self.y_loc), self.radius)
+    def draw(self, cam_x, cam_y, zoom):
+        pygame.draw.circle(screen, self.color, ((self.x_loc - cam_x) * zoom + WINDOW_CENTER_WIDTH, (self.y_loc - cam_y) * zoom + WINDOW_CENTER_HEIGHT), self.radius)
 
     @classmethod
     def Solo(cls, index, location):
@@ -119,14 +122,22 @@ class Map:
         self.nodes = []
     
     # render all of our connections, and nodes
-    def draw(self):
+    def draw(self, camera_x, camera_y, zoom):
+        visible_x = WINDOW_CENTER_WIDTH * 2 // zoom
+        visible_y = WINDOW_CENTER_HEIGHT * 2 // zoom
+        min_y = max(0, (camera_y - visible_y // 2) // SQ_SIZE)
+        max_y = min(N_MAP_SQ_Y, (camera_y + visible_y // 2) // SQ_SIZE + 1)
+        min_x = max(0, (camera_x - visible_x // 2) // SQ_SIZE)
+        max_x = min(N_MAP_SQ_X, (camera_x + visible_x // 2) // SQ_SIZE + 1)
+
+
         for this_node in self.nodes:
             if this_node.next_node is not None:
                 for next_node in this_node.next_node:
-                    pygame.draw.line(screen, Color.Brown.value, (this_node.x_loc, this_node.y_loc), (next_node.x_loc, next_node.y_loc), 8)
+                    pygame.draw.line(screen, Color.Brown.value, ((this_node.x_loc - camera_x) * zoom + WINDOW_CENTER_WIDTH, (this_node.y_loc - camera_y) * zoom + WINDOW_CENTER_HEIGHT), ((next_node.x_loc - camera_x) * zoom + WINDOW_CENTER_WIDTH, (next_node.y_loc - camera_y) * zoom + WINDOW_CENTER_HEIGHT), int(16 * zoom))
         
         for node in self.nodes:
-            node.draw()
+            node.draw(camera_x, camera_y, zoom)
 
     # Looks up a nodes configuration based on a nodes index and appends the associated next_node
     def connectEdges(self):
@@ -261,6 +272,63 @@ class Map:
         self.instantiatePlayables()
         self.connectEdges()
 
+
+class Camera: 
+    def __init__(self):
+        self.x_location = MAP_WIDTH / 2
+        self.y_location = MAP_HEIGHT / 2
+        self.prev_mouse_x = None
+        self.prev_mouse_y = None
+        self.zoom = 1
+        self.max_zoom = 2.75
+    
+
+
+    def update(self):
+        if pygame.mouse.get_pressed()[1]:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            if self.prev_mouse_x is not None and self.prev_mouse_y is not None:
+                dx = mouse_x - self.prev_mouse_x
+                dy = mouse_y - self.prev_mouse_y
+                
+                new_x = self.x_location - dx / self.zoom
+                new_y = self.y_location - dy / self.zoom
+
+                if 0 <= new_x - WINDOW_CENTER_WIDTH and new_x + WINDOW_CENTER_WIDTH <= MAP_WIDTH:
+                    self.x_location = new_x
+            
+                if 0 <= new_y - WINDOW_CENTER_HEIGHT and new_y + WINDOW_CENTER_HEIGHT <= MAP_HEIGHT:
+                    self.y_location = new_y
+
+
+            self.prev_mouse_x = mouse_x
+            self.prev_mouse_y = mouse_y
+        else:
+            self.prev_mouse_x = None
+            self.prev_mouse_y = None
+
+    def zoomIn(self):
+        new_zoom = self.zoom * 1.1
+        self.zoom = min(self.max_zoom, new_zoom)
+
+    def minZoom(self):
+        dx = min(self.x_location - WINDOW_CENTER_WIDTH, MAP_WIDTH - self.x_location - WINDOW_CENTER_WIDTH)
+        dy = min(self.y_location - WINDOW_CENTER_HEIGHT, MAP_HEIGHT - self.y_location - WINDOW_CENTER_HEIGHT)
+
+        min_x_zoom = WINDOW_WIDTH / (2 * dx + WINDOW_WIDTH)
+        min_y_zoom = WINDOW_HEIGHT / (2 * dy + WINDOW_HEIGHT)
+
+        return max(min_x_zoom, min_y_zoom) / 3
+
+    def zoomOut(self):
+        new_zoom = self.zoom / 1.1
+        min_zoom = self.minZoom()
+        self.zoom = max(min_zoom, new_zoom)
+
+    def render(self, game):
+        game.draw(self.x_location, self.y_location, self.zoom)
+
             
 class Game:
     def __init__(self, game_mode, orientation, n_players):
@@ -268,9 +336,9 @@ class Game:
         self.game_mode = game_mode
         self.map_data = json.load(open('graph.json', 'r'))
         self.map_template = random.choice(self.map_data[n_players - 1]['layouts'])
-        print("graph #", self.map_data.index(self.map_template))
         self.n_players = n_players
         self.world_map = Map(game_mode, self.map_template, orientation, n_players)
+        self.camera = Camera()
 
 
 def main():
@@ -284,9 +352,17 @@ def main():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 game.running = False
+            elif e.type == pygame.MOUSEBUTTONDOWN:
+                if e.button == 4:
+                    print("zooming in")
+                    game.camera.zoomIn()
+                elif e.button == 5:
+                    print("zooming out")
+                    game.camera.zoomOut()
         
         screen.fill(Color.Black.value)
-        game.world_map.draw()
+        game.camera.update()
+        game.camera.render(game.world_map)
         
         pygame.display.update()
         clock.tick(15)
