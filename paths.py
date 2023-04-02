@@ -39,17 +39,18 @@ screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 
 class Color(Enum): 
-    Black = (0, 0, 0)
-    Red = (138, 34, 6)
+    Black = (33, 33, 33)
+    Red = (138, 54, 39)
     Purple = (84, 84, 222)
     Green = (41, 95, 64)
-    Orange = (111, 64, 15)
-    Brown = (87, 48, 13)
+    Orange = (111, 64, 45)
+    Brown = (87, 68, 45)
     LightRed = (222, 138, 138)
     LightGreen = (175, 198, 170)
-    Gray = (132, 236, 128)
+    Gray = (132, 222, 128)
     White = (222, 222, 222)
 
+TEAM = [(33, 33, 33), (-33, -33, -33)]
 
 class NodeType(Enum):
     Spawn = 0
@@ -59,7 +60,6 @@ class NodeType(Enum):
     Exit = 4
     Stronghold = 5
 
-
 class GameMode(Enum):
     Solo = 0
     Cooperative = 1
@@ -67,15 +67,18 @@ class GameMode(Enum):
     Combative = 3
 
 class Orientation(Enum):
-    RightFacing = 0
-    TopDown = 1
-    LeftFacing = 2
-    BottomUp = 3
+    Vertical = 0
+    Horizontal = 1
+    RightFacing = 2
+    TopDown = 3
+    LeftFacing = 4
+    BottomUp = 5
     
 class Node:
-    def __init__(self, node_type, index, color, location_x, location_y, radius):
+    def __init__(self, node_type, index, team_n, color, location_x, location_y, radius):
         self.type = node_type
         self.index = index
+        self.team_n = team_n
         self.x_loc = location_x * SQ_SIZE
         self.y_loc = location_y * SQ_SIZE
         self.color = color
@@ -83,53 +86,52 @@ class Node:
         self.next_node = []
 
     def draw(self, cam_x, cam_y, zoom):
+        print("Color:", self.color)
         pygame.draw.circle(screen, self.color, ((self.x_loc - cam_x) * zoom + WINDOW_CENTER_WIDTH, (self.y_loc - cam_y) * zoom + WINDOW_CENTER_HEIGHT), self.radius)
 
-    @classmethod
-    def Solo(cls, index, location):
-        return cls(NodeType.Solo, index, Color.Purple.value, location[0], location[1], NODE_RADIUS)
+    def color(col, n):
+        t_col = TEAM[n]
+        return (col[0] + t_col[0], col[1] + t_col[1], col[2] + t_col[2])
 
     @classmethod
-    def Entry(cls, index, location):
-        return cls(NodeType.Entry, index, Color.Green.value, location[0], location[1], NODE_RADIUS)
+    def Solo(cls, team_n, index, location):
+        return cls(NodeType.Solo, index, team_n, cls.color(Color.Purple.value, team_n), location[0], location[1], NODE_RADIUS)
 
     @classmethod
-    def Intermediate(cls, index, location):
-        return cls(NodeType.Intermediate, index, Color.Orange.value, location[0], location[1], NODE_RADIUS)
+    def Entry(cls, team_n, index, location):
+        return cls(NodeType.Entry, index, team_n, cls.color(Color.Green.value, team_n), location[0], location[1], NODE_RADIUS)
 
     @classmethod
-    def Exit(cls, index, location):
-        return cls(NodeType.Exit, index, Color.Red.value, location[0], location[1], NODE_RADIUS)
+    def Intermediate(cls, team_n, index, location):
+        return cls(NodeType.Intermediate, index, team_n, cls.color(Color.Orange.value, team_n), location[0], location[1], NODE_RADIUS)
 
     @classmethod
-    def Spawn(cls, index, location):
-        return cls(NodeType.Spawn, index, Color.LightRed.value, location[0], location[1], NODE_RADIUS // 2)
+    def Exit(cls, team_n, index, location):
+        return cls(NodeType.Exit, index, team_n, cls.color(Color.Red.value, team_n), location[0], location[1], NODE_RADIUS)
 
     @classmethod
-    def Stronghold(cls, index,location):
-        return cls(NodeType.Stronghold, index, Color.LightGreen.value, location[0], location[1], NODE_RADIUS // 2)
+    def Spawn(cls, team_n, index, location):
+        return cls(NodeType.Spawn, index, team_n, cls.color(Color.LightRed.value, team_n), location[0], location[1], NODE_RADIUS // 2)
 
-# Responsible for generating the Node Map
-class Map:
-    def __init__(self, game_mode, template, orientation, n_players):
-        self.orientation = orientation
-        self.spawn_points = template['spawn']
-        self.playable_nodes = template['playable']
-        self.strongholds = template['stronghold']
-        self.playable_layers = template['playable_layers']
-        self.game_mode = game_mode
+    @classmethod
+    def Stronghold(cls, team_n, index,location):
+        return cls(NodeType.Stronghold, index, team_n, cls.color(Color.LightGreen.value, team_n), location[0], location[1], NODE_RADIUS // 2)
+
+
+class Team:
+    def __init__(self, orientation, n_players, team_n):
+        self.team_n = team_n
         self.n_players = n_players
+        self.orientation = orientation
         self.nodes = []
-    
-    # render all of our connections, and nodes
+        
     def draw(self, camera_x, camera_y, zoom):
-        visible_x = WINDOW_CENTER_WIDTH * 2 // zoom
-        visible_y = WINDOW_CENTER_HEIGHT * 2 // zoom
-        min_y = max(0, (camera_y - visible_y // 2) // SQ_SIZE)
-        max_y = min(N_MAP_SQ_Y, (camera_y + visible_y // 2) // SQ_SIZE + 1)
-        min_x = max(0, (camera_x - visible_x // 2) // SQ_SIZE)
-        max_x = min(N_MAP_SQ_X, (camera_x + visible_x // 2) // SQ_SIZE + 1)
-
+        #visible_x = WINDOW_WIDTH // zoom
+        #visible_y = WINDOW_HEIGHT // zoom
+        #min_y = max(0, (camera_y - visible_y // 2) // SQ_SIZE)
+        #max_y = min(N_MAP_SQ_Y, (camera_y + visible_y // 2) // SQ_SIZE + 1)
+        #min_x = max(0, (camera_x - visible_x // 2) // SQ_SIZE)
+        #max_x = min(N_MAP_SQ_X, (camera_x + visible_x // 2) // SQ_SIZE + 1)
 
         for this_node in self.nodes:
             if this_node.next_node is not None:
@@ -139,11 +141,56 @@ class Map:
         for node in self.nodes:
             node.draw(camera_x, camera_y, zoom)
 
-    # Looks up a nodes configuration based on a nodes index and appends the associated next_node
-    def connectEdges(self):
-        node_map = {(node.type.name, node.index): node for node in self.nodes}
 
-        for node in self.nodes:
+
+# Responsible for generating the Node Map
+class Map:
+    def __init__(self, game_mode, template, orientation, n_team_players, n_teams):
+        self.game_mode = game_mode
+        self.n_teams = n_teams
+        self.spawn_points = template['spawn']
+        self.playable_nodes = template['playable']
+        self.strongholds = template['stronghold']
+        self.playable_layers = template['playable_layers']
+        self.teams = [Team(self.getTeamsOrientation(n, orientation), n_team_players, n) for n in range(n_teams)]
+    
+    def getTeamsOrientation(self, team_number, orientation): 
+        if self.n_teams == 0:
+            if orientation == Orientation.Vertical:
+                return random.choice([Orientation.TopDown, Orientation.BottomUp])
+            return random.choice([Orientation.LeftFacing, Orientation.RightFacing])
+        
+        if team_number == 0:
+            if orientation == Orientation.Vertical:
+                return Orientation.TopDown
+            return Orientation.RightFacing
+        
+        if orientation == Orientation.Vertical:
+            return Orientation.BottomUp
+    
+        return Orientation.LeftFacing
+    
+    
+    # render all of our connections, and nodes for all our teams
+    def draw(self, camera, zoom):
+        for team in self.teams:
+            team.draw(camera[0], camera[1], zoom)
+
+    # used to determine how far to offset team locations on the map
+    def getTeamOffset(self, team):
+        if self.n_teams > 1:
+            if team.orientation == Orientation.LeftFacing:
+               return (N_MAP_SQ_X, 0)
+            elif team.orientation == Orientation.TopDown:
+                return (0, N_MAP_SQ_Y)
+        
+        return (0, 0)
+    
+    # Looks up a nodes configuration based on a nodes index and appends the associated next_node
+    def connectEdges(self, team):
+        node_map = {(node.type.name, node.index): node for node in team.nodes}
+
+        for node in team.nodes:
             next_nodes = None
 
             if node.type == NodeType.Stronghold:
@@ -160,117 +207,138 @@ class Map:
                     node.next_node.append(next_node)
 
     # if we have a single playable layer we add solo nodes, otherwise we add Entry, Intermediate and Exit nodes
-    def instantiatePlayables(self):
+    def instantiatePlayables(self, team):
+        team_offset = self.getTeamOffset(team)
+        team_orientation = team.orientation
+        
         # gets number of playable nodes, section dimensions, and adds solo nodes if we only have 1 layer
         if self.playable_layers == 1:
             layer_count = len(self.playable_nodes)
-            section_width, section_height = self.getSectionDimensions(layer_count, 1)
+            section_width, section_height = self.getSectionDimensions(team_orientation, layer_count)
+            location =  team_offset + self.getPlayableLocation(i, 0, section_width, section_height, team_orientation)
 
             for i in range(layer_count):
-                self.nodes.append(Node.Solo(i, self.getPlayableLocation(i, 0, section_width, section_height)))
+                team.nodes.append(Node.Solo(team.team_n, i, location))
         # Otherwise we have no solo nodes and we need to account for sectioning
         else:
-            section_height = self.getYDimension(self.playable_layers)
+            section_height = self.getYDimension(team_orientation, self.playable_layers)
             idx = 0
 
             for layer in range(self.playable_layers):
                 nodes = [n for n in self.playable_nodes if n['layer'] == layer]
                 n_nodes = len(nodes)
-                section_width = self.getXDimension(n_nodes)
+                section_width = self.getXDimension(team_orientation, n_nodes)
+
 
                 for i in range(n_nodes):
                     if self.playable_nodes[idx]['next_nodes']:
-                        location = self.getPlayableLocation(i, layer, section_width, section_height)
+                        location = team_offset + self.getPlayableLocation(i, layer, section_width, section_height, team_orientation)
 
                         # Adjust location if we invert vertically or horizontally
-                        if self.orientation == Orientation.BottomUp:
+                        if team.orientation == Orientation.BottomUp:
                             location = (location[0], N_MAP_SQ_Y - location[1])
-                        if self.orientation == Orientation.RightFacing:
+                        if team.orientation == Orientation.RightFacing:
                             location = (N_MAP_SQ_X - location[0], location[1])
 
                         # If we are in the first layer it's an entry node
                         if layer == 0:
-                            self.nodes.append(Node.Entry(idx, location))
+                            team.nodes.append(Node.Entry(team.team_n, idx, location))
                         # If the next node is a stronghold we have an exit
                         elif self.playable_nodes[idx]['next_nodes'][0]['type'] == 'Stronghold':
-                            self.nodes.append(Node.Exit(idx, location))
+                            team.nodes.append(Node.Exit(team.team_n, idx, location))
                         # Otherwise we have an intermediary node
                         else:
-                            self.nodes.append(Node.Intermediate(idx, location))
+                            team.nodes.append(Node.Intermediate(team.team_n, idx, location))
 
                     idx += 1
 
     # gets number of strongholds and section size, and appends stronghold nodes based on location
-    def instantiateStrongholds(self):
+    def instantiateStrongholds(self, team):
+        team_offset = self.getTeamOffset(team)
+        team_orientation = team.orientation
         n_strongholds = len(self.strongholds)
-        section_size = self.getXDimension(n_strongholds)
+        section_size = self.getXDimension(team_orientation, n_strongholds)
+
 
         for i in range(n_strongholds):
-            self.nodes.append(Node.Stronghold(i, self.getStrongholdLocation(i, section_size)))
+            stronghold_location =  team_offset + self.getStrongholdLocation(i, section_size, team_orientation)
+            team.nodes.append(Node.Stronghold(team.team_n, i, stronghold_location))
     
     # gets number of spawns and section size, and appends spawn nodes based on location
-    def instantiateSpawns(self):
+    def instantiateSpawns(self, team):
+        team_orientation = team.orientation
+        team_offset = self.getTeamOffset(team)
         n_spawns = len(self.spawn_points)
-        section_size = self.getXDimension(n_spawns)
+        section_size = self.getXDimension(team_orientation, n_spawns)
         
-        for i in range(n_spawns):
-            self.nodes.append(Node.Spawn(i, self.getSpawnLocation(i, section_size)))
+        for _ in range(self.n_teams):
+            for i in range(n_spawns):
+                spawn_location = team_offset + self.getSpawnLocation(i, section_size, team_orientation)
+                team.nodes.append(Node.Spawn(team.team_n, i, spawn_location))
 
     # If the Orientation is Horizontal, we want to swap the Dimensions of X and Y for the Screen
     # Note: This function is NOT rotating anything. Only swaping Width and Height based on orientation
-    def getSectionDimensions(self, x_layers, y_layers): 
-        return (self.getXDimension(x_layers), self.getYDimension(y_layers))
+    def getSectionDimensions(self, orientation, x_layers): 
+        return (self.getXDimension(orientation, x_layers), self.getYDimension(orientation, 1))
 
-    def getXDimension(self, divisor):
+    def getXDimension(self, orientation, divisor):
         return (N_MAP_SQ_X - PATH_WIDTH * 2) // divisor \
-                if self.orientation in [Orientation.TopDown, Orientation.BottomUp] else \
+                if orientation in [Orientation.TopDown, Orientation.BottomUp] else \
                 (N_MAP_SQ_Y - PATH_WIDTH * 2) // divisor
 
-    def getYDimension(self, divisor):
+    def getYDimension(self, orientation, divisor):
         return (N_MAP_SQ_Y - PATH_WIDTH * 2) // divisor \
-                if self.orientation in [Orientation.TopDown, Orientation.BottomUp] else \
+                if orientation in [Orientation.TopDown, Orientation.BottomUp] else \
                 (N_MAP_SQ_X - PATH_WIDTH * 2) // divisor
 
     # The following 3 location functions are responsible for 'rotating' the orientation
-    def getStrongholdLocation(self, i, section_size):
-        if self.orientation == Orientation.TopDown:
-            return self.getLocation((i, section_size), N_MAP_SQ_Y)
-        elif self.orientation == Orientation.BottomUp:
-            return  self.getLocation((i, section_size), 0)
-        elif self.orientation == Orientation.RightFacing:
-            return  self.getLocation(0, (i, section_size))
-        elif self.orientation == Orientation.LeftFacing:
-            return  self.getLocation(N_MAP_SQ_X, (i, section_size))
+    def getStrongholdLocation(self, i, section_size, orientation):
+        if orientation == Orientation.TopDown:
+            return self.getLocation((i, section_size), N_MAP_SQ_Y, orientation)
+        elif orientation == Orientation.BottomUp:
+            return  self.getLocation((i, section_size), 0, orientation)
+        elif orientation == Orientation.RightFacing:
+            return  self.getLocation(0, (i, section_size), orientation)
+        elif orientation == Orientation.LeftFacing:
+            return  self.getLocation(N_MAP_SQ_X, (i, section_size), orientation)
 
-    def getSpawnLocation(self, i, section_size):
-        if self.orientation == Orientation.TopDown:
-            return self.getLocation((i, section_size), 0)
-        elif self.orientation == Orientation.BottomUp:
-            return self.getLocation((i, section_size), N_MAP_SQ_Y)
-        elif self.orientation == Orientation.RightFacing:
-            return self.getLocation(N_MAP_SQ_X, (i, section_size))
-        elif self.orientation == Orientation.LeftFacing:
-            return self.getLocation(0, (i, section_size))
+    def getSpawnLocation(self, i, section_size, orientation):
+        if orientation == Orientation.TopDown:
+            return self.getLocation((i, section_size), 0, orientation)
+        elif orientation == Orientation.BottomUp:
+            return self.getLocation((i, section_size), N_MAP_SQ_Y, orientation)
+        elif orientation == Orientation.RightFacing:
+            return self.getLocation(N_MAP_SQ_X, (i, section_size), orientation)
+        elif orientation == Orientation.LeftFacing:
+            return self.getLocation(0, (i, section_size), orientation)
 
-    def getPlayableLocation(self, ix, iy, section_width, section_height):
-        if self.orientation in [Orientation.TopDown, Orientation.BottomUp]:
-            return self.getLocation((ix, section_width), (iy, section_height))
-        elif self.orientation in [Orientation.LeftFacing, Orientation.RightFacing]:
-            return self.getLocation((iy, section_height), (ix, section_width))
+    def getPlayableLocation(self, ix, iy, section_width, section_height, orientation):
+        if orientation in [Orientation.TopDown, Orientation.BottomUp]:
+            return self.getLocation((ix, section_width), (iy, section_height), orientation)
+        elif orientation in [Orientation.LeftFacing, Orientation.RightFacing]:
+            return self.getLocation((iy, section_height), (ix, section_width), orientation)
 
     # if the input values are tuples, we calculate the section size * the index + the offset
     # X and Y data should swapped based on orientation before we ever get the location
-    def getLocation(self, x_data, y_data):
+    def getLocation(self, x_data, y_data, orientation):
         x_location = random.randint(x_data[1] * x_data[0] + PATH_WIDTH + PATH_HALF, x_data[1] * (x_data[0] + 1) + PATH_HALF) if isinstance(x_data, tuple) else x_data
         y_location = random.randint(y_data[1] * y_data[0] + PATH_WIDTH + PATH_HALF, y_data[1] * (y_data[0] + 1) + PATH_HALF) if isinstance(y_data, tuple) else y_data
+
+        # If the map is upside down we need to flip across the X
+        if orientation == Orientation.BottomUp:
+            x_location = N_MAP_SQ_X - x_location
+        # If the map is flipped horizontally we flip across the Y
+        elif orientation == Orientation.LeftFacing:
+            y_location = N_MAP_SQ_Y - y_location
 
         return (x_location, y_location)
 
     def generate(self):
-        self.instantiateSpawns()
-        self.instantiateStrongholds()
-        self.instantiatePlayables()
-        self.connectEdges()
+        for team in self.teams:
+            self.instantiateSpawns(team)
+            self.instantiateStrongholds(team)
+            self.instantiatePlayables(team)
+            self.connectEdges(team)
 
 
 class Camera: 
@@ -327,7 +395,7 @@ class Camera:
         self.zoom = max(min_zoom, new_zoom)
 
     def render(self, game):
-        game.draw(self.x_location, self.y_location, self.zoom)
+        game.draw((self.x_location, self.y_location), self.zoom)
 
             
 class Game:
@@ -335,16 +403,18 @@ class Game:
         self.running = True
         self.game_mode = game_mode
         self.map_data = json.load(open('graph.json', 'r'))
-        self.map_template = random.choice(self.map_data[n_players - 1]['layouts'])
+        self.n_teams = 1 if game_mode in [GameMode.Solo, GameMode.Cooperative] else 2
         self.n_players = n_players
-        self.world_map = Map(game_mode, self.map_template, orientation, n_players)
+        self.n_team_players = n_players // self.n_teams
+        self.map_template = random.choice(self.map_data[self.n_team_players - 1]['layouts'])
+        self.world_map = Map(game_mode, self.map_template, orientation, self.n_team_players, self.n_teams)
         self.camera = Camera()
-
-
+        
+        
 def main():
-    players = 8 #random.randint(1, 3)
-    orientation = Orientation.TopDown
-    game_mode = GameMode.Cooperative
+    players = 6 #random.randint(1, 3)
+    orientation = Orientation.Horizontal
+    game_mode = GameMode.Combative
     game = Game(game_mode, orientation, players)
     game.world_map.generate()
 
