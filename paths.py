@@ -74,6 +74,11 @@ class Orientation(Enum):
     LeftFacing = 4
     BottomUp = 5
     
+def color(col, n):
+    t_col = TEAM[n]
+    return (col[0] + t_col[0], col[1] + t_col[1], col[2] + t_col[2])
+
+
 class Node:
     def __init__(self, node_type, index, team_n, color, location_x, location_y, radius):
         self.type = node_type
@@ -86,36 +91,33 @@ class Node:
         self.next_node = []
 
     def draw(self, cam_x, cam_y, zoom):
-        print("Color:", self.color)
         pygame.draw.circle(screen, self.color, ((self.x_loc - cam_x) * zoom + WINDOW_CENTER_WIDTH, (self.y_loc - cam_y) * zoom + WINDOW_CENTER_HEIGHT), self.radius)
 
-    def color(col, n):
-        t_col = TEAM[n]
-        return (col[0] + t_col[0], col[1] + t_col[1], col[2] + t_col[2])
+
 
     @classmethod
     def Solo(cls, team_n, index, location):
-        return cls(NodeType.Solo, index, team_n, cls.color(Color.Purple.value, team_n), location[0], location[1], NODE_RADIUS)
+        return cls(NodeType.Solo, index, team_n, color(Color.Purple.value, team_n), location[0], location[1], NODE_RADIUS)
 
     @classmethod
     def Entry(cls, team_n, index, location):
-        return cls(NodeType.Entry, index, team_n, cls.color(Color.Green.value, team_n), location[0], location[1], NODE_RADIUS)
+        return cls(NodeType.Entry, index, team_n, color(Color.Green.value, team_n), location[0], location[1], NODE_RADIUS)
 
     @classmethod
     def Intermediate(cls, team_n, index, location):
-        return cls(NodeType.Intermediate, index, team_n, cls.color(Color.Orange.value, team_n), location[0], location[1], NODE_RADIUS)
+        return cls(NodeType.Intermediate, index, team_n, color(Color.Orange.value, team_n), location[0], location[1], NODE_RADIUS)
 
     @classmethod
     def Exit(cls, team_n, index, location):
-        return cls(NodeType.Exit, index, team_n, cls.color(Color.Red.value, team_n), location[0], location[1], NODE_RADIUS)
+        return cls(NodeType.Exit, index, team_n, color(Color.Red.value, team_n), location[0], location[1], NODE_RADIUS)
 
     @classmethod
     def Spawn(cls, team_n, index, location):
-        return cls(NodeType.Spawn, index, team_n, cls.color(Color.LightRed.value, team_n), location[0], location[1], NODE_RADIUS // 2)
+        return cls(NodeType.Spawn, index, team_n, color(Color.LightRed.value, team_n), location[0], location[1], NODE_RADIUS // 2)
 
     @classmethod
     def Stronghold(cls, team_n, index,location):
-        return cls(NodeType.Stronghold, index, team_n, cls.color(Color.LightGreen.value, team_n), location[0], location[1], NODE_RADIUS // 2)
+        return cls(NodeType.Stronghold, index, team_n, color(Color.LightGreen.value, team_n), location[0], location[1], NODE_RADIUS // 2)
 
 
 class Team:
@@ -160,6 +162,9 @@ class Map:
                 return random.choice([Orientation.TopDown, Orientation.BottomUp])
             return random.choice([Orientation.LeftFacing, Orientation.RightFacing])
         
+        if self.game_mode == GameMode.Survival:
+            return Orientation.TopDown
+
         if team_number == 0:
             if orientation == Orientation.Vertical:
                 return Orientation.TopDown
@@ -215,9 +220,9 @@ class Map:
         if self.playable_layers == 1:
             layer_count = len(self.playable_nodes)
             section_width, section_height = self.getSectionDimensions(team_orientation, layer_count)
-            location =  team_offset + self.getPlayableLocation(i, 0, section_width, section_height, team_orientation)
 
             for i in range(layer_count):
+                location =  team_offset + self.getPlayableLocation(i, 0, section_width, section_height, team_orientation)
                 team.nodes.append(Node.Solo(team.team_n, i, location))
         # Otherwise we have no solo nodes and we need to account for sectioning
         else:
@@ -399,24 +404,32 @@ class Camera:
 
             
 class Game:
-    def __init__(self, game_mode, orientation, n_players):
+    def __init__(self, game_mode, n_players):
+        map_data = json.load(open('graph.json', 'r'))
+
         self.running = True
         self.game_mode = game_mode
-        self.map_data = json.load(open('graph.json', 'r'))
         self.n_teams = 1 if game_mode in [GameMode.Solo, GameMode.Cooperative] else 2
         self.n_players = n_players
         self.n_team_players = n_players // self.n_teams
-        self.map_template = random.choice(self.map_data[self.n_team_players - 1]['layouts'])
-        self.world_map = Map(game_mode, self.map_template, orientation, self.n_team_players, self.n_teams)
+        self.map_template = random.choice(map_data[self.n_team_players - 1]['layouts'])
+        self.orientation = Orientation.Vertical if game_mode == GameMode.Survival else random.choice([Orientation.Horizontal, Orientation.Vertical])
+        self.world_map = Map(game_mode, self.map_template, self.orientation, self.n_team_players, self.n_teams)
         self.camera = Camera()
         
         
 def main():
     players = 6 #random.randint(1, 3)
-    orientation = Orientation.Horizontal
     game_mode = GameMode.Combative
-    game = Game(game_mode, orientation, players)
+    game = Game(game_mode, players)
     game.world_map.generate()
+
+    print("New Game Created:")
+    print("Game Mode:", str(game.game_mode))
+    print("Number of Teams:", game.n_teams)
+    print("Players per Teams:", game.n_team_players)
+    print("Map Orientation:", game.orientation)
+
 
     while game.running:
         for e in pygame.event.get():
@@ -430,12 +443,12 @@ def main():
                     print("zooming out")
                     game.camera.zoomOut()
         
-        screen.fill(Color.Black.value)
+        screen.fill(color(Color.Black.value, 1))
         game.camera.update()
         game.camera.render(game.world_map)
         
         pygame.display.update()
-        clock.tick(15)
+        clock.tick(5)
 
 if __name__ == '__main__':
     main()
