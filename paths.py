@@ -184,7 +184,7 @@ class Map:
     # used to determine how far to offset team locations on the map
     def getTeamOffset(self, team):
         if self.n_teams > 1:
-            if team.orientation == Orientation.LeftFacing:
+            if team.orientation == Orientation.LeftFacing or team.team_n == 1 and self.game_mode == GameMode.Survival:
                return (N_MAP_SQ_X, 0)
             elif team.orientation == Orientation.TopDown:
                 return (0, N_MAP_SQ_Y)
@@ -276,10 +276,9 @@ class Map:
         n_spawns = len(self.spawn_points)
         section_size = self.getXDimension(team_orientation, n_spawns)
         
-        for _ in range(self.n_teams):
-            for i in range(n_spawns):
-                spawn_location = team_offset + self.getSpawnLocation(i, section_size, team_orientation)
-                team.nodes.append(Node.Spawn(team.team_n, i, spawn_location))
+        for i in range(n_spawns):
+            spawn_location = team_offset + self.getSpawnLocation(i, section_size, team_orientation)
+            team.nodes.append(Node.Spawn(team.team_n, i, spawn_location))
 
     # If the Orientation is Horizontal, we want to swap the Dimensions of X and Y for the Screen
     # Note: This function is NOT rotating anything. Only swaping Width and Height based on orientation
