@@ -444,6 +444,7 @@ def main():
                     game.camera.zoomOut()
         
         screen.fill(color(Color.Black.value, 1))
+
         game.camera.update()
         game.camera.render(game.world_map)
         
