@@ -1,6 +1,7 @@
 import pygame
 import math
 import random
+import noise
 from enum import Enum
 from camera import Camera
 from color import Color
@@ -36,18 +37,28 @@ class Map:
     def generate_map(self):
         for y in range(N_MAP_SQUARES_Y):
             for x in range(N_MAP_SQUARES_X):
-                self.squares.append(Square(screen, CENTER_X, CENTER_Y, x, y, SQUARE_SIZE, Color.Gray, False, 1))
+                self.squares.append(Square(screen, CENTER_X, CENTER_Y, x, y, SQUARE_SIZE, Color.Gray, True, 1))
         
     def generate_points(self):
         # picks a random point on the top third of the map and makes it red
         start = self.squares[random.randint(0, N_MAP_SQUARES_Y // 3 * N_MAP_SQUARES_X)]
         start.color = Color.LightRed
         start.fill = 0
+        start.path = False
         
         # picks a random point in the bottom third of the map and makes it green
         end = self.squares[random.randint(math.ceil(N_MAP_SQUARES_Y / 1.5 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)]
         end.color = Color.LightGreen
         end.fill = 0
+        end.path = False
+
+    def generate_noise(self):
+        base = random.randint(0, 4096)
+        
+        for y in range(N_MAP_SQUARES_Y):
+            for x in range(N_MAP_SQUARES_X):
+                if snoise2(x, y, 1, base=base) > 0.5:
+                    self.squares[Square(screen, CENTER_X, CENTER_Y, x, y, SQUARE_SIZE, Color.Gray, False, 1)]
 
 
 class Game:

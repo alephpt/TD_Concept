@@ -9,8 +9,8 @@ class Square:
         self.y = y * size
         self.size = size
         self.color = color
-        self.fill = fill
         self.path = path
+        self.fill = fill
 
     def draw(self, x_origin, y_origin, zoom):
         x = (self.x - x_origin) * zoom + self.x_center
