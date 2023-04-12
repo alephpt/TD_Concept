@@ -41,13 +41,21 @@ class Map:
         
     def generate_points(self):
         # picks a random point on the top third of the map and makes it red
-        start = self.squares[random.randint(0, N_MAP_SQUARES_Y // 3 * N_MAP_SQUARES_X)]
+        def find_path(start, end):
+            index = random.randint(start, end)
+            
+            while not self.squares[index].path:
+                index = random.randint(start, end)
+            
+            return index
+        
+        start = self.squares[find_path(0, N_MAP_SQUARES_Y // 3 * N_MAP_SQUARES_X)]
         start.color = Color.LightRed
         start.fill = 0
         start.path = False
         
         # picks a random point in the bottom third of the map and makes it green
-        end = self.squares[random.randint(math.ceil(N_MAP_SQUARES_Y / 1.5 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)]
+        end = self.squares[find_path(math.ceil(N_MAP_SQUARES_Y / 1.5 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)]
         end.color = Color.LightGreen
         end.fill = 0
         end.path = False
@@ -76,7 +84,7 @@ class Game:
         self.ui = UI()
         self.map = Map()
         self.map.generate_noise(self.ui.sliders)
-        
+        self.map.generate_points()
         
     def draw(self, xloc, yloc, zoom):
         for square in self.map.squares:
@@ -139,7 +147,7 @@ def main():
             elif e.type == pygame.MOUSEBUTTONDOWN:
                 if e.button == 4:
                     new_zoom = game.ui.camera.zoom * 1.1
-                    game.ui.camera.zoom = min(ui.camera.max_zoom, new_zoom)
+                    game.ui.camera.zoom = min(game.ui.camera.max_zoom, new_zoom)
                 elif e.button == 5:
                     new_zoom = game.ui.camera.zoom / 1.1
                     min_zoom = game.ui.camera.minZoom()
