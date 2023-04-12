@@ -232,7 +232,7 @@ class Team:
         for i in range(n_strongholds):
             location = self.getStrongholdLocation(i, section_size, team_orientation)
             location = self.adjustOffset(self.team_offset, self.adjustInversions(team_orientation, location))
-            self.nodes.append(Node.Stronghold(self.team_n, i, self.adjustInversions(team_orientation, location)))
+            self.nodes.append(Node.Stronghold(self.team_n, i, location))
     
     # gets number of spawns and section size, and appends spawn nodes based on location
     def instantiateSpawns(self):
@@ -241,7 +241,8 @@ class Team:
         section_size = self.getXDimension(team_orientation, n_spawns)
         
         for i in range(n_spawns):
-            spawn_location = self.adjustOffset(self.team_offset, self.getSpawnLocation(i, section_size, team_orientation))
+            location = self.getSpawnLocation(i, section_size, team_orientation)
+            spawn_location = self.adjustOffset(self.team_offset, self.adjustInversions(team_orientation, location))
             self.nodes.append(Node.Spawn(self.team_n, i, spawn_location))
 
     # If the Orientation is Horizontal, we want to swap the Dimensions of X and Y for the Screen
@@ -429,7 +430,7 @@ class Game:
         
         
 def main():
-    players = 6 #random.randint(1, 3)
+    players = 10 #random.randint(1, 3)
     game_mode = GameMode.Combative
     game = Game(game_mode, players)
 
