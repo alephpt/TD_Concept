@@ -8,6 +8,6 @@ class Color(Enum):
     Orange = (111, 64, 45)
     Brown = (87, 68, 45)
     LightRed = (222, 138, 138)
-    LightGreen = (175, 198, 170)
-    Gray = (132, 222, 128)
+    LightGreen = (115, 198, 170)
+    Gray = (132, 122, 128)
     White = (222, 222, 222)
