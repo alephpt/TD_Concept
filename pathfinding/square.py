@@ -17,3 +17,4 @@ class Square:
         y = (self.y - y_origin) * zoom + self.y_center
         size = self.size * zoom
         pygame.draw.rect(self.screen, self.color.value, (x, y, size, size), self.fill)
+        

@@ -29,10 +29,21 @@ pygame.display.set_caption('Path Mapping')
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+class Pathfinder:
+    def __init__(self, start, end):
+        self.start_index = start
+        self.target_index = end
+        
+    def find_path(self):
+        print("finding path")
+        
+
 class Map:
-    def __init__(self):
+    def __init__(self, sliders):
         self.squares = []
-        # self.generate_points()
+        self.pathfinder = None
+        self.generate_noise(sliders)
+        self.generate_points()
         
     def blank_map(self):
         for y in range(N_MAP_SQUARES_Y):
@@ -49,16 +60,21 @@ class Map:
             
             return index
         
-        start = self.squares[find_path(0, N_MAP_SQUARES_Y // 3 * N_MAP_SQUARES_X)]
+        start_index = find_path(0, N_MAP_SQUARES_Y // 3 * N_MAP_SQUARES_X)
+        start = self.squares[start_index]
         start.color = Color.LightRed
         start.fill = 0
         start.path = False
         
+        
         # picks a random point in the bottom third of the map and makes it green
-        end = self.squares[find_path(math.ceil(N_MAP_SQUARES_Y / 1.5 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)]
+        target_index = find_path(math.ceil(N_MAP_SQUARES_Y / 1.5 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)
+        end = self.squares[target_index]
         end.color = Color.LightGreen
         end.fill = 0
         end.path = False
+        
+        self.pathfinder = Pathfinder(start_index, target_index)
 
     def generate_noise(self, sliders):
         self.blank_map()
@@ -77,14 +93,14 @@ class Map:
                 else:
                     self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, x, y, SQUARE_SIZE, Color.Gray, True, 1)
 
+    def update(self):
+        self.pathfinder.find_path()
 
 class Game:
     def __init__(self):
         self.running = True
         self.ui = UI()
-        self.map = Map()
-        self.map.generate_noise(self.ui.sliders)
-        self.map.generate_points()
+        self.map = Map(self.ui.sliders)
         
     def draw(self, xloc, yloc, zoom):
         for square in self.map.squares:
@@ -92,6 +108,7 @@ class Game:
 
     def update(self):
         self.ui.update(self)
+        self.map.update()
 
 class UI:
     def __init__(self):
@@ -163,7 +180,7 @@ def main():
         game.update()
 
         pygame.display.update()
-        clock.tick(60)
+        clock.tick(1)
     
 
 if __name__ == '__main__':
