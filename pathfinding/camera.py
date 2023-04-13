@@ -16,18 +16,21 @@ class Camera:
         self.max_zoom = 2.75
 
     def move(self, mouse_x, mouse_y):
-
         if self.prev_mouse_x is not None and self.prev_mouse_y is not None:
-            dx = mouse_x - self.prev_mouse_x
-            dy = mouse_y - self.prev_mouse_y
+            # calculate the difference between the current mouse position and the previous mouse position
+            dx = (mouse_x - self.prev_mouse_x) / self.zoom
+            dy = (mouse_y - self.prev_mouse_y) / self.zoom
             
-            new_x = self.x_location - dx / self.zoom
-            new_y = self.y_location - dy / self.zoom
+            # calculate the new x and y location and scale the window size by the zoom
+            new_x = self.x_location - dx
+            new_y = self.y_location - dy
+            window_x_scaled = self.center_window_x / self.zoom // 1.25
+            window_y_scaled = self.center_window_y / self.zoom // 1.4
 
-            if 0 <= new_x - self.center_window_x and new_x + self.center_window_x <= self.map_width:
+            # check if the new x and y location are within the map boundaries
+            if 0 < new_x - window_x_scaled and new_x + window_x_scaled < self.map_width:
                 self.x_location = new_x
-        
-            if 0 <= new_y - self.center_window_y and new_y + self.center_window_y <= self.map_height:
+            if 0 < new_y - window_y_scaled and new_y + window_y_scaled < self.map_height:
                 self.y_location = new_y
 
     def update(self):

@@ -141,8 +141,8 @@ class UI:
     
     def update(self, game):
         self.camera.render(game)
-        self.manager.update(clock.get_time())
-        self.manager.draw_ui(screen)
+        #self.manager.update(clock.get_time())
+        #self.manager.draw_ui(screen)
 
 # main function
 def main():
@@ -152,7 +152,7 @@ def main():
     
     while game.running:
         for e in pygame.event.get():
-            game.ui.manager.process_events(e)
+            #game.ui.manager.process_events(e)
             if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
                 game.running = False
             elif e.type == pygame.MOUSEBUTTONDOWN:
@@ -163,11 +163,11 @@ def main():
                     new_zoom = game.ui.camera.zoom / 1.1
                     min_zoom = game.ui.camera.minZoom()
                     game.ui.camera.zoom = max(min_zoom, new_zoom)
-            elif e.type == pygame.USEREVENT:
-                if e.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
-                    if e.ui_element in game.ui.sliders:
-                        game.map.generate_noise(game.ui.sliders)
-                        game.ui.update_values()
+            # elif e.type == pygame.USEREVENT:
+            #     if e.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
+            #         if e.ui_element in game.ui.sliders:
+            #             game.map.generate_noise(game.ui.sliders)
+            #             game.ui.update_values()
 
         screen.fill(Color.Black.value)
 
@@ -182,7 +182,7 @@ def main():
                 new_zoom = game.ui.camera.zoom * 1.1
                 game.ui.camera.zoom = min(game.ui.camera.max_zoom, new_zoom)
             # check if current mouse position is lower than previous mouse position
-            elif mouse_y > game.ui.camera.prev_mouse_x:
+            elif mouse_y > game.ui.camera.prev_mouse_y:
                 new_zoom = game.ui.camera.zoom / 1.1
                 min_zoom = game.ui.camera.minZoom()
                 game.ui.camera.zoom = max(min_zoom, new_zoom)
