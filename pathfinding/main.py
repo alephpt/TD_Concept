@@ -33,9 +33,12 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 class Map:
     def __init__(self, sliders):
         self.squares = []
-        self.pathfinder = None
+        self.start_index = None
+        self.target_index = None
         self.generate_noise(sliders)
         self.generate_points()
+        self.pathfinder = Path(N_MAP_SQUARES_X, N_MAP_SQUARES_Y, self.start_index, self.target_index, screen, CENTER_X, CENTER_Y, SQUARE_SIZE, self.squares)
+        
         
     def blank_map(self):
         for y in range(N_MAP_SQUARES_Y):
@@ -57,6 +60,7 @@ class Map:
         start.color = Color.LightRed
         start.fill = 0
         start.path = False
+        self.start_index = start_index
         
         
         # picks a random point in the bottom third of the map and makes it green
@@ -65,8 +69,8 @@ class Map:
         end.color = Color.LightGreen
         end.fill = 0
         end.path = False
+        self.target_index = target_index
         
-        self.pathfinder = Path(N_MAP_SQUARES_X, N_MAP_SQUARES_Y,start_index, target_index)
 
     def generate_noise(self, sliders):
         self.blank_map()
@@ -86,7 +90,7 @@ class Map:
                     self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, True, 1)
 
     def update(self):
-        pass
+        self.pathfinder.find_entropic_path()
 
 class Game:
     def __init__(self):
@@ -149,7 +153,6 @@ def main():
     game = Game()
     
     game.map.pathfinder.find_linear_path()
-    game.map.pathfinder.find_entropic_path(game.map.squares, screen, CENTER_X, CENTER_Y, SQUARE_SIZE)
     
     while game.running:
         for e in pygame.event.get():
@@ -195,7 +198,7 @@ def main():
         game.ui.camera.prev_mouse_y = mouse_y
 
         pygame.display.update()
-        clock.tick(15)
+        clock.tick(5)
     
 
 if __name__ == '__main__':

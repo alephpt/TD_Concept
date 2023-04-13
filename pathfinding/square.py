@@ -12,7 +12,8 @@ class Square:
         self.color = color
         self.path = path
         self.fill = fill
-        self.entropy = 100000
+        self.entropy = 0
+        self.checked = False
 
     def draw(self, x_origin, y_origin, zoom):
         x = (self.x - x_origin) * zoom + self.x_center
