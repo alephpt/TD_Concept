@@ -198,7 +198,7 @@ def main():
         game.ui.camera.prev_mouse_y = mouse_y
 
         pygame.display.update()
-        clock.tick(5)
+        clock.tick(15)
     
 
 if __name__ == '__main__':

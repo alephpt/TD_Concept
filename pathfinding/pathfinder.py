@@ -144,24 +144,36 @@ class Path:
         if len(self.end_points) == 0:
             self.mapped = True
             self.clean_up_end_points()
-
+    
+    def is_at_target(self, x, y):
+        return self.end_pos == (x, y)
     
     def find_next_step(self):
         lowest_entropy = None
-        points = [(self.walking[0] - 1, self.walking[1]), (self.walking[0] + 1, self.walking[1]), (self.walking[0], self.walking[1] - 1), (self.walking[0], self.walking[1] + 1)]
+        points = [
+            (self.walking[0] - 1, self.walking[1]),         # left
+            (self.walking[0] - 1, self.walking[1] - 1),     # left up
+            (self.walking[0], self.walking[1] - 1),         # up
+            (self.walking[0] + 1, self.walking[1] - 1),     # right up
+            (self.walking[0] + 1, self.walking[1]),         # right
+            (self.walking[0] + 1, self.walking[1] + 1),     # right down
+            (self.walking[0], self.walking[1] + 1),         # down
+            (self.walking[0] - 1, self.walking[1] + 1)      # left down
+            ]
         best_point = None
 
         for point in points:
-            if self.is_in_map(point[0], point[1]):
-                if self.is_path(point[0], point[1]):
-                    if lowest_entropy is None or self.squares[self.index(point[0], point[1])].entropy < lowest_entropy:
-                        lowest_entropy = self.squares[self.index(point[0], point[1])].entropy
-                        best_point = point
+            if not self.is_at_target(point[0], point[1]):
+                if self.is_in_map(point[0], point[1]):
+                    if self.is_path(point[0], point[1]):
+                        if lowest_entropy is None or self.squares[self.index(point[0], point[1])].entropy < lowest_entropy:
+                            lowest_entropy = self.squares[self.index(point[0], point[1])].entropy
+                            best_point = point
+            else: 
+                self.searching = False
+                return point
         
         return best_point
-    
-    def found_exit(self):
-        return self.walking == self.end_pos
     
     def find_exit(self):
         if self.walking is None:
@@ -173,12 +185,6 @@ class Path:
         self.exit_path.append(step)
         self.walking = step
         
-        if self.found_exit():
-            self.searching = False
-            self.walking = None
-            self.exit_path = []
-            self.mapped = False
-            self.end_points = []
     
     def find_entropic_path(self):
         if len(self.end_points) == 0:
