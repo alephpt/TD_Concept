@@ -2,7 +2,6 @@ import pygame
 import pygame_gui
 import math
 import random
-import noise
 from enum import Enum
 from camera import Camera
 from color import Color
@@ -16,7 +15,7 @@ N_MAP_SQUARES_Y = 200
 MAP_WIDTH = N_MAP_SQUARES_X * SQUARE_SIZE
 MAP_HEIGHT = N_MAP_SQUARES_Y * SQUARE_SIZE
 
-SCREEN_WIDTH = 1600
+SCREEN_WIDTH = 1900
 SCREEN_HEIGHT = 1200
 CENTER_X = SCREEN_WIDTH // 2
 CENTER_Y = SCREEN_HEIGHT // 2
@@ -39,23 +38,13 @@ class Map:
         self.generate_points()
         self.pathfinder = Path(N_MAP_SQUARES_X, N_MAP_SQUARES_Y, self.start_index, self.target_index, screen, CENTER_X, CENTER_Y, SQUARE_SIZE, self.squares)
         
-        
     def blank_map(self):
         for y in range(N_MAP_SQUARES_Y):
             for x in range(N_MAP_SQUARES_X):
                 self.squares.append(Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, True, 1))
         
     def generate_points(self):
-        # picks a random point on the top third of the map and makes it red
-        def find_path(start, end):
-            index = random.randint(start, end)
-            
-            while not self.squares[index].path:
-                index = random.randint(start, end)
-            
-            return index
-        
-        start_index = find_path(0, N_MAP_SQUARES_Y // 3 * N_MAP_SQUARES_X)
+        start_index = Path.find_path(self.squares, 0, N_MAP_SQUARES_Y // 3 * N_MAP_SQUARES_X)
         start = self.squares[start_index]
         start.color = Color.LightRed
         start.fill = 0
@@ -64,7 +53,7 @@ class Map:
         
         
         # picks a random point in the bottom third of the map and makes it green
-        target_index = find_path(math.ceil(N_MAP_SQUARES_Y / 1.5 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)
+        target_index = Path.find_path(self.squares, math.ceil(N_MAP_SQUARES_Y / 1.5 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)
         end = self.squares[target_index]
         end.color = Color.LightGreen
         end.fill = 0
@@ -84,10 +73,13 @@ class Map:
         
         for y in range(N_MAP_SQUARES_Y):
             for x in range(N_MAP_SQUARES_X):
-                if noise.snoise2(x * scale, y * scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=base) > 0.375 or \
-                   noise.snoise2(x * scale, y * scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=(base * 2)) > 0.375:
-                    self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, False, 0)
+                if noise.snoise2(x * scale * 2, y * scale * 2, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=base) > 0.275 or \
+                   noise.snoise2(x * scale, y * scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity * 1.6, base=(base * 2)) > 0.425 or \
+                   noise.snoise2(x * scale * 3, y * scale * 3, octaves=octaves * 2, persistence=persistence / 2.0, lacunarity=lacunarity, base=(base // 2)) > 0.675:
+                    # create wall
+                    self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Brown, False, 0)
                 else:
+                    # create path
                     self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, True, 1)
 
     def update(self):
@@ -199,7 +191,7 @@ def main():
         game.ui.camera.prev_mouse_y = mouse_y
 
         pygame.display.update()
-        clock.tick(100)
+        clock.tick(120)
     
 
 if __name__ == '__main__':

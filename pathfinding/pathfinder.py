@@ -49,7 +49,7 @@ def entropic_color(entropy, max_entropy):
         t = (t - 0.625) / 0.125
         return lerp_colors(colors[7], colors[8], t)
     else:
-        t = (t - 0.75) / 0.22
+        t = (t - 0.75) / 0.5
         return lerp_colors(colors[8], colors[9], t)
     
 
@@ -64,8 +64,8 @@ class Path:
         self.start_index = start
         self.end_index = end
         self.squares = squares
-        self.start_pos = (start % self.n_map_x, start // self.n_map_x)
-        self.end_pos = (end % self.n_map_x, end // self.n_map_x)
+        self.start_pos = self.index_to_pos(start)
+        self.end_pos = self.index_to_pos(end)
         self.end_points = []
         self.exit_path = []
         self.walking = None
@@ -117,6 +117,78 @@ class Path:
             
         return res
     
+    def index_to_pos(self, index):
+        return (index % self.n_map_x, index // self.n_map_x)
+    
+    @staticmethod
+    def find_path(squares, start, end):
+        import random
+        index = random.randint(start, end)
+        
+        while not squares[index].path:
+            index = random.randint(start, end)
+        
+        return index
+    
+    def create_wall(self, index):
+        self.squares[index].path = False
+        self.squares[index].color = Color.Brown
+        self.squares[index].fill = 0
+        self.squares[index].entropy = 0
+
+    def find_new_start(self):
+        self.start_index = self.find_path(self.squares, 0, self.n_map_y // 3 * self.n_map_x)
+        self.start_pos = self.index_to_pos(self.start_index)
+        
+        self.squares[self.start_index].path = False
+        self.squares[self.start_index].color = Color.LightRed
+        self.squares[self.start_index].fill = 0
+        self.squares[self.start_index].entropy = 0
+        self.squares[self.start_index].x = self.start_pos[0]
+        self.squares[self.start_index].y = self.start_pos[1]
+        
+    def find_new_end(self):
+        self.end_index = self.find_path(self.squares, self.n_map_y // 3 * self.n_map_x, self.n_map_x * self.n_map_y)
+        self.end_pos = self.index_to_pos(self.end_index)
+        
+        self.squares[self.end_index].path = False
+        self.squares[self.end_index].color = Color.LightGreen
+        self.squares[self.end_index].fill = 0
+        self.squares[self.end_index].entropy = 0
+        self.squares[self.end_index].x = self.end_pos[0]
+        self.squares[self.end_index].y = self.end_pos[1]
+    
+    def finish_mapping(self):
+        
+        # check for any unreached paths
+        for square in self.squares:
+            if square.path and not square.checked:
+                self.create_wall(square.index)
+                continue
+
+        # check that start is not surrounded by walls
+        self.walking = self.index_to_pos(self.start_index)
+        if self.find_next_step() == None:
+            # turn the current square into a wall
+            self.create_wall(self.start_index)
+
+            # and spawn new start
+            self.find_new_start()
+                
+            
+        # check that end is not surrounded by walls
+        self.walking = self.index_to_pos(self.end_index)
+        if self.find_next_step() == None:
+            # turn self into wall, and spawn new end
+            self.create_wall(self.end_index)
+            
+            # and spawn new end
+            self.find_new_end()
+        
+        self.walking = None
+        self.mapped = True
+        
+    
     def clean_up_end_points(self):
         if len(self.end_points) > 0:
             for end_point in self.end_points:
@@ -143,8 +215,7 @@ class Path:
                     
         # determine if we have mapped all the squares that are part of the path
         if len(self.end_points) == 0:
-            self.mapped = True
-            self.clean_up_end_points()
+            self.finish_mapping()
     
     def is_at_target(self, x, y):
         return self.end_pos == (x, y)

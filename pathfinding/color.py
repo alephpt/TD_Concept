@@ -6,7 +6,7 @@ class Color(Enum):
     Purple = (84, 84, 222)
     Green = (41, 95, 64)
     Orange = (111, 64, 45)
-    Brown = (87, 68, 45)
+    Brown = (44, 34, 23)
     LightRed = (222, 138, 138)
     LightGreen = (115, 198, 170)
     Gray = (132, 122, 128)

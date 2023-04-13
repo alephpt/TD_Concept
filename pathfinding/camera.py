@@ -62,3 +62,4 @@ class Camera:
 
     def render(self, game):
         game.draw(self.x_location, self.y_location, self.zoom)
+        self.update()
