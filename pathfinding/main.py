@@ -7,6 +7,7 @@ from enum import Enum
 from camera import Camera
 from color import Color
 from square import Square
+from pathfinder import Path
 
 # Globals
 SQUARE_SIZE = 25
@@ -15,8 +16,8 @@ N_MAP_SQUARES_Y = 100
 MAP_WIDTH = N_MAP_SQUARES_X * SQUARE_SIZE
 MAP_HEIGHT = N_MAP_SQUARES_Y * SQUARE_SIZE
 
-SCREEN_WIDTH = 1600
-SCREEN_HEIGHT = 1200
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 800
 CENTER_X = SCREEN_WIDTH // 2
 CENTER_Y = SCREEN_HEIGHT // 2
 SCREEN_SQUARES_X = math.ceil(SCREEN_WIDTH / SQUARE_SIZE)
@@ -28,16 +29,7 @@ pygame.display.set_caption('Path Mapping')
 
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-class Pathfinder:
-    def __init__(self, start, end):
-        self.start_index = start
-        self.target_index = end
         
-    def find_path(self):
-        print("finding path")
-        
-
 class Map:
     def __init__(self, sliders):
         self.squares = []
@@ -74,7 +66,7 @@ class Map:
         end.fill = 0
         end.path = False
         
-        self.pathfinder = Pathfinder(start_index, target_index)
+        self.pathfinder = Path(start_index, target_index)
 
     def generate_noise(self, sliders):
         self.blank_map()
@@ -156,6 +148,8 @@ class UI:
 def main():
     game = Game()
     
+    prev_mouse_pos_y = 0
+    
     while game.running:
         for e in pygame.event.get():
             game.ui.manager.process_events(e)
@@ -178,9 +172,29 @@ def main():
         screen.fill(Color.Black.value)
 
         game.update()
+        
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        
+        # check for zoom if mac control key is pressed (works on my system)
+        if pygame.key.get_pressed()[pygame.K_LCTRL]:
+            # check if current mouse position is higher than previous mouse position
+            if mouse_y < game.ui.camera.prev_mouse_y:
+                new_zoom = game.ui.camera.zoom * 1.1
+                game.ui.camera.zoom = min(game.ui.camera.max_zoom, new_zoom)
+            # check if current mouse position is lower than previous mouse position
+            elif mouse_y > game.ui.camera.prev_mouse_x:
+                new_zoom = game.ui.camera.zoom / 1.1
+                min_zoom = game.ui.camera.minZoom()
+                game.ui.camera.zoom = max(min_zoom, new_zoom)
+        # if mac option key is pressed (works on my system)
+        if pygame.key.get_pressed()[pygame.K_LMETA]:
+            game.ui.camera.move(mouse_x, mouse_y)
+
+        game.ui.camera.prev_mouse_x = mouse_x
+        game.ui.camera.prev_mouse_y = mouse_y
 
         pygame.display.update()
-        clock.tick(1)
+        clock.tick(15)
     
 
 if __name__ == '__main__':

@@ -15,8 +15,7 @@ class Camera:
         self.zoom = .5
         self.max_zoom = 2.75
 
-    def move(self):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
+    def move(self, mouse_x, mouse_y):
 
         if self.prev_mouse_x is not None and self.prev_mouse_y is not None:
             dx = mouse_x - self.prev_mouse_x
@@ -31,13 +30,14 @@ class Camera:
             if 0 <= new_y - self.center_window_y and new_y + self.center_window_y <= self.map_height:
                 self.y_location = new_y
 
-
+    def update(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        
+        if pygame.mouse.get_pressed()[1]:
+            self.move(mouse_x, mouse_y)
+        
         self.prev_mouse_x = mouse_x
         self.prev_mouse_y = mouse_y
-
-    def update(self):
-        if pygame.mouse.get_pressed()[1]:
-            self.move()
 
     def zoomIn(self):
         new_zoom = self.zoom * 1.1
