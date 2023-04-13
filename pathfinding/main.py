@@ -11,13 +11,13 @@ from pathfinder import Path
 
 # Globals
 SQUARE_SIZE = 25
-N_MAP_SQUARES_X = 100
-N_MAP_SQUARES_Y = 100
+N_MAP_SQUARES_X = 300
+N_MAP_SQUARES_Y = 200
 MAP_WIDTH = N_MAP_SQUARES_X * SQUARE_SIZE
 MAP_HEIGHT = N_MAP_SQUARES_Y * SQUARE_SIZE
 
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 1600
+SCREEN_HEIGHT = 1200
 CENTER_X = SCREEN_WIDTH // 2
 CENTER_Y = SCREEN_HEIGHT // 2
 SCREEN_SQUARES_X = math.ceil(SCREEN_WIDTH / SQUARE_SIZE)
@@ -84,13 +84,15 @@ class Map:
         
         for y in range(N_MAP_SQUARES_Y):
             for x in range(N_MAP_SQUARES_X):
-                if noise.snoise2(x * scale, y * scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=base) > 0.375:
+                if noise.snoise2(x * scale, y * scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=base) > 0.375 or \
+                   noise.snoise2(x * scale, y * scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=(base * 2)) > 0.375:
                     self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, False, 0)
                 else:
                     self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, True, 1)
 
     def update(self):
         self.pathfinder.find_entropic_path()
+
 
 class Game:
     def __init__(self):
@@ -105,6 +107,7 @@ class Game:
     def update(self):
         self.ui.update(self)
         self.map.update()
+
 
 class UI:
     def __init__(self):
@@ -152,8 +155,6 @@ class UI:
 def main():
     game = Game()
     
-    game.map.pathfinder.find_linear_path()
-    
     while game.running:
         for e in pygame.event.get():
             #game.ui.manager.process_events(e)
@@ -198,7 +199,7 @@ def main():
         game.ui.camera.prev_mouse_y = mouse_y
 
         pygame.display.update()
-        clock.tick(15)
+        clock.tick(100)
     
 
 if __name__ == '__main__':

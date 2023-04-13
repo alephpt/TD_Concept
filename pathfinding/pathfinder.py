@@ -1,5 +1,4 @@
 import math
-from square import Square
 from color import Color
 
 # define 10 colors for the gradient
@@ -22,8 +21,8 @@ def lerp(a, b, t):
 def lerp_colors(a, b, t):
     return(lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t))
 
-def entropic_color(entropy):
-    t = entropy / 200
+def entropic_color(entropy, max_entropy):
+    t = entropy / max_entropy
     
     if t < 0.075:
         t = t / 0.075
@@ -72,13 +71,15 @@ class Path:
         self.walking = None
         self.searching = False
         self.mapped = False
+        # find max manhatton distance to top left corner and top right corner
+        self.max_entropy = max(self.man_distance(self.end_pos, (0,0)), self.man_distance(self.end_pos, (self.n_map_x, 0)))
         
     ## Manhattan distance - Number of steps to get from one point to another
-    def get_man_distance(self, a, b):
+    def man_distance(self, a, b):
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
     
     ## Euclidian distance - Straight line distance between two points
-    def get_euc_distance(self, a, b):
+    def euc_distance(self, a, b):
         return math.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
     
     def index(self, x, y):
@@ -120,7 +121,7 @@ class Path:
         if len(self.end_points) > 0:
             for end_point in self.end_points:
                 entropy = self.squares[self.index(end_point[0], end_point[1])].entropy
-                self.squares[self.index(end_point[0], end_point[1])].color = entropic_color(entropy)
+                self.squares[self.index(end_point[0], end_point[1])].color = entropic_color(entropy, self.max_entropy)
             
         self.end_points = []
     
