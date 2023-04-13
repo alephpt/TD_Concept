@@ -7,6 +7,7 @@ from camera import Camera
 from color import Color
 from square import Square
 from pathfinder import Path
+import noise
 
 # Globals
 SQUARE_SIZE = 25
