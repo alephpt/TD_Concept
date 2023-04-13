@@ -68,6 +68,10 @@ class Path:
         self.start_pos = (start % self.n_map_x, start // self.n_map_x)
         self.end_pos = (end % self.n_map_x, end // self.n_map_x)
         self.end_points = []
+        self.exit_path = []
+        self.walking = None
+        self.searching = False
+        self.mapped = False
         
     ## Manhattan distance - Number of steps to get from one point to another
     def get_man_distance(self, a, b):
@@ -113,16 +117,14 @@ class Path:
         return res
     
     def clean_up_end_points(self):
-        for end_point in self.end_points:
-            entropy = self.squares[self.index(end_point[0], end_point[1])].entropy
-            self.squares[self.index(end_point[0], end_point[1])].color = entropic_color(entropy)
+        if len(self.end_points) > 0:
+            for end_point in self.end_points:
+                entropy = self.squares[self.index(end_point[0], end_point[1])].entropy
+                self.squares[self.index(end_point[0], end_point[1])].color = entropic_color(entropy)
             
         self.end_points = []
     
-    def find_entropic_path(self):
-        if len(self.end_points) == 0:
-            self.end_points = [self.end_pos]
-
+    def map_entropic_values(self):
         curr_end_points = self.end_points
         self.clean_up_end_points()
         
@@ -130,12 +132,68 @@ class Path:
             entropy = self.squares[self.index(point[0], point[1])].entropy + 1
         
             next_points = self.find_next_endpoint(point)
-            for next_point in next_points:
-                self.squares[self.index(next_point[0], next_point[1])].color = Color.Green
-                self.squares[self.index(next_point[0], next_point[1])].checked = True
-                self.squares[self.index(next_point[0], next_point[1])].fill = 1
-                self.squares[self.index(next_point[0], next_point[1])].entropy = entropy
-                self.end_points.append(next_point)
+            if len(next_points) > 0:
+                for next_point in next_points:
+                    self.squares[self.index(next_point[0], next_point[1])].color = Color.Green
+                    self.squares[self.index(next_point[0], next_point[1])].checked = True
+                    self.squares[self.index(next_point[0], next_point[1])].fill = 1
+                    self.squares[self.index(next_point[0], next_point[1])].entropy = entropy
+                    self.end_points.append(next_point)
+                    
+        # determine if we have mapped all the squares that are part of the path
+        if len(self.end_points) == 0:
+            self.mapped = True
+            self.clean_up_end_points()
+
+    
+    def find_next_step(self):
+        lowest_entropy = None
+        points = [(self.walking[0] - 1, self.walking[1]), (self.walking[0] + 1, self.walking[1]), (self.walking[0], self.walking[1] - 1), (self.walking[0], self.walking[1] + 1)]
+        best_point = None
+
+        for point in points:
+            if self.is_in_map(point[0], point[1]):
+                if self.is_path(point[0], point[1]):
+                    if lowest_entropy is None or self.squares[self.index(point[0], point[1])].entropy < lowest_entropy:
+                        lowest_entropy = self.squares[self.index(point[0], point[1])].entropy
+                        best_point = point
+        
+        return best_point
+    
+    def found_exit(self):
+        return self.walking == self.end_pos
+    
+    def find_exit(self):
+        if self.walking is None:
+            self.walking = self.start_pos
+        
+        step = self.find_next_step()
+        
+        self.squares[self.index(step[0], step[1])].color = Color.White
+        self.exit_path.append(step)
+        self.walking = step
+        
+        if self.found_exit():
+            self.searching = False
+            self.walking = None
+            self.exit_path = []
+            self.mapped = False
+            self.end_points = []
+    
+    def find_entropic_path(self):
+        if len(self.end_points) == 0:
+            self.searching = True
+            self.end_points = [self.end_pos]
+            return
+    
+        if self.searching:
+            if not self.mapped:
+                self.map_entropic_values()
+            else:
+                self.find_exit()
+        
+
+        
             
     def find_linear_path(self):
         print("manhatton distance: ", self.get_man_distance(self.start_pos, self.end_pos))
