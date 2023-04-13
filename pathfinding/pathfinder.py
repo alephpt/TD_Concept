@@ -4,16 +4,16 @@ from color import Color
 
 # define 10 colors for the gradient
 colors = [
-    (170, 0, 0),       # 1. Red (hottest)
-    (170, 46, 0),      # 2. Orange-red
-    (170, 110, 0),     # 3. Orange
-    (170, 170, 0),     # 4. Yellow
-    (115, 170, 31),    # 5. Green-yellow
-    (0, 170, 0),       # 6. Green
-    (0, 170, 170),     # 7. Cyan
-    (0, 127, 170),     # 8. Deep sky blue
-    (20, 96, 170),     # 9. Dodger blue
-    (0, 0, 170)        # 10. Blue (coldest)
+    (115, 30, 45),      # 1. Red (hottest)
+    (115, 60, 30),      # 2. Orange-red
+    (115, 90, 20),      # 3. Orange
+    (115, 115, 20),     # 4. Yellow
+    (90, 115, 30),      # 5. Green-yellow
+    (60, 115, 30),      # 6. Green
+    (30, 115, 90),      # 7. Cyan
+    (30, 90, 115),      # 8. Deep sky blue
+    (30, 60, 115),      # 9. Dodger blue
+    (45, 30, 115)       # 10. Blue (coldest)
 ]
 
 def lerp(a, b, t):
