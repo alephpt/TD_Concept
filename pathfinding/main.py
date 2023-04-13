@@ -40,7 +40,7 @@ class Map:
     def blank_map(self):
         for y in range(N_MAP_SQUARES_Y):
             for x in range(N_MAP_SQUARES_X):
-                self.squares.append(Square(screen, CENTER_X, CENTER_Y, x, y, SQUARE_SIZE, Color.Gray, True, 1))
+                self.squares.append(Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, True, 1))
         
     def generate_points(self):
         # picks a random point on the top third of the map and makes it red
@@ -66,7 +66,7 @@ class Map:
         end.fill = 0
         end.path = False
         
-        self.pathfinder = Path(start_index, target_index)
+        self.pathfinder = Path(N_MAP_SQUARES_X, N_MAP_SQUARES_Y,start_index, target_index)
 
     def generate_noise(self, sliders):
         self.blank_map()
@@ -81,12 +81,12 @@ class Map:
         for y in range(N_MAP_SQUARES_Y):
             for x in range(N_MAP_SQUARES_X):
                 if noise.snoise2(x * scale, y * scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=base) > 0.375:
-                    self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, x, y, SQUARE_SIZE, Color.Gray, False, 0)
+                    self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, False, 0)
                 else:
-                    self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, x, y, SQUARE_SIZE, Color.Gray, True, 1)
+                    self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, True, 1)
 
     def update(self):
-        self.pathfinder.find_path()
+        pass
 
 class Game:
     def __init__(self):
@@ -148,7 +148,8 @@ class UI:
 def main():
     game = Game()
     
-    prev_mouse_pos_y = 0
+    game.map.pathfinder.find_linear_path()
+    game.map.pathfinder.find_entropic_path(game.map.squares, screen, CENTER_X, CENTER_Y, SQUARE_SIZE)
     
     while game.running:
         for e in pygame.event.get():
