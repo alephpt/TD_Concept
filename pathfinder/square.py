@@ -16,12 +16,11 @@ class Square:
         self.color = color if isinstance(color, tuple) else color.value
     
     # TODO: delete initialization of camera_props
-    def draw(self, camera_props = (1, (0, 0))):
-        zoom = camera_props[0]
-        origin_x, origin_y = camera_props[1]
+    def draw(self, zoom, camera_pos):
+        origin_x, origin_y = camera_pos
         
-        size = self.size
-        x = self.x
-        y = self.y
+        size = self.size * zoom
+        x = (self.x - origin_x) * zoom + self.screen_center_x 
+        y = (self.y - origin_y) * zoom + self.screen_center_y
         
         draw.rect(self.screen, self.color, (x, y, size, size), self.outline)
