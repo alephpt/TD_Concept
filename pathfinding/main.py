@@ -11,13 +11,13 @@ import noise
 
 # Globals
 SQUARE_SIZE = 25
-N_MAP_SQUARES_X = 300
-N_MAP_SQUARES_Y = 200
+N_MAP_SQUARES_X = 150
+N_MAP_SQUARES_Y = 300
 MAP_WIDTH = N_MAP_SQUARES_X * SQUARE_SIZE
 MAP_HEIGHT = N_MAP_SQUARES_Y * SQUARE_SIZE
 
-SCREEN_WIDTH = 1900
-SCREEN_HEIGHT = 1200
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 800
 CENTER_X = SCREEN_WIDTH // 2
 CENTER_Y = SCREEN_HEIGHT // 2
 SCREEN_SQUARES_X = math.ceil(SCREEN_WIDTH / SQUARE_SIZE)
@@ -45,7 +45,7 @@ class Map:
                 self.squares.append(Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, True, 1))
         
     def generate_points(self):
-        start_index = Path.find_path(self.squares, 0, N_MAP_SQUARES_Y // 3 * N_MAP_SQUARES_X)
+        start_index = Path.find_path(self.squares, 0, N_MAP_SQUARES_Y // 6.75 * N_MAP_SQUARES_X)
         start = self.squares[start_index]
         start.color = Color.LightRed
         start.fill = 0
@@ -54,7 +54,7 @@ class Map:
         
         
         # picks a random point in the bottom third of the map and makes it green
-        target_index = Path.find_path(self.squares, math.ceil(N_MAP_SQUARES_Y / 1.5 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)
+        target_index = Path.find_path(self.squares, math.ceil(N_MAP_SQUARES_Y / 1.25 * N_MAP_SQUARES_X), N_MAP_SQUARES_X * N_MAP_SQUARES_Y)
         end = self.squares[target_index]
         end.color = Color.LightGreen
         end.fill = 0
@@ -74,11 +74,13 @@ class Map:
         
         for y in range(N_MAP_SQUARES_Y):
             for x in range(N_MAP_SQUARES_X):
-                if noise.snoise2(x * scale * 2, y * scale * 2, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=base) > 0.275 or \
-                   noise.snoise2(x * scale, y * scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity * 1.6, base=(base * 2)) > 0.425 or \
-                   noise.snoise2(x * scale * 3, y * scale * 3, octaves=octaves * 2, persistence=persistence / 2.0, lacunarity=lacunarity, base=(base // 2)) > 0.675:
+                if noise.snoise2(x * scale * 12.75, y * scale * 15.75, octaves=octaves, persistence=persistence, lacunarity=lacunarity, base=base) > 0.175 or \
+                   noise.snoise2(x * scale * 16.25, y * scale * 13, octaves=octaves * 2, persistence=persistence / 2.0, lacunarity=lacunarity, base=(base // 2)) > 0.675:
                     # create wall
                     self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Brown, False, 0)
+                #elif noise.snoise2(x * scale * 20, y * scale * 18, octaves=octaves, persistence=persistence, lacunarity=lacunarity * 1.6, base=(base * 2)) > 0.675:
+                    # create water 
+                    #self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.LightBlue, False, 0)
                 else:
                     # create path
                     self.squares[y * N_MAP_SQUARES_X + x] = Square(screen, CENTER_X, CENTER_Y, N_MAP_SQUARES_X, x, y, SQUARE_SIZE, Color.Gray, True, 1)
@@ -172,21 +174,6 @@ def main():
         game.update()
         
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        
-        # check for zoom if mac control key is pressed (works on my system)
-        if pygame.key.get_pressed()[pygame.K_LCTRL]:
-            # check if current mouse position is higher than previous mouse position
-            if mouse_y < game.ui.camera.prev_mouse_y:
-                new_zoom = game.ui.camera.zoom * 1.1
-                game.ui.camera.zoom = min(game.ui.camera.max_zoom, new_zoom)
-            # check if current mouse position is lower than previous mouse position
-            elif mouse_y > game.ui.camera.prev_mouse_y:
-                new_zoom = game.ui.camera.zoom / 1.1
-                min_zoom = game.ui.camera.minZoom()
-                game.ui.camera.zoom = max(min_zoom, new_zoom)
-        # if mac option key is pressed (works on my system)
-        if pygame.key.get_pressed()[pygame.K_LMETA]:
-            game.ui.camera.move(mouse_x, mouse_y)
 
         game.ui.camera.prev_mouse_x = mouse_x
         game.ui.camera.prev_mouse_y = mouse_y

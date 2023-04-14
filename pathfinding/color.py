@@ -9,5 +9,6 @@ class Color(Enum):
     Brown = (44, 34, 23)
     LightRed = (222, 138, 138)
     LightGreen = (115, 198, 170)
+    LightBlue = (138, 138, 222)
     Gray = (132, 122, 128)
     White = (222, 222, 222)
