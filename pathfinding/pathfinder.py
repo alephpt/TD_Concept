@@ -1,4 +1,5 @@
 import math
+import random
 from color import Color
 
 # define 10 colors for the gradient
@@ -136,6 +137,12 @@ class Path:
         self.squares[index].fill = 0
         self.squares[index].entropy = 0
 
+    def create_water(self,index):
+        self.squares[index].path = False
+        self.squares[index].color = Color.LightBlue
+        self.squares[index].fill = 0
+        self.squares[index].entropy = 0
+
     def find_new_start(self):
         self.start_index = self.find_path(self.squares, 0, self.n_map_y // 3 * self.n_map_x)
         self.start_pos = self.index_to_pos(self.start_index)
@@ -163,7 +170,10 @@ class Path:
         # check for any unreached paths
         for square in self.squares:
             if square.path and not square.checked:
-                self.create_wall(square.index)
+                if random.randint(0, 1) == 0:
+                    self.create_wall(square.index)
+                else:
+                    self.create_water(square.index)
                 continue
 
         # check that start is not surrounded by walls
