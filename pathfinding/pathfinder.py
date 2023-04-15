@@ -170,10 +170,10 @@ class Path:
         # check for any unreached paths
         for square in self.squares:
             if square.path and not square.checked:
-                if random.randint(0, 1) == 0:
-                    self.create_wall(square.index)
-                else:
-                    self.create_water(square.index)
+                #if random.randint(0, 1) == 0:
+                self.create_wall(square.index)
+                #else:
+                #   self.create_water(square.index)
                 continue
 
         # check that start is not surrounded by walls
