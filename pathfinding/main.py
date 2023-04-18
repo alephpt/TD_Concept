@@ -10,9 +10,9 @@ from pathfinder import Path
 import noise
 
 # Globals
-SQUARE_SIZE = 25
+SQUARE_SIZE = 40
 N_MAP_SQUARES_X = 150
-N_MAP_SQUARES_Y = 300
+N_MAP_SQUARES_Y = 150
 MAP_WIDTH = N_MAP_SQUARES_X * SQUARE_SIZE
 MAP_HEIGHT = N_MAP_SQUARES_Y * SQUARE_SIZE
 
@@ -179,7 +179,7 @@ def main():
         game.ui.camera.prev_mouse_y = mouse_y
 
         pygame.display.update()
-        clock.tick(120)
+        clock.tick(30)
     
 
 if __name__ == '__main__':
