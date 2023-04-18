@@ -33,7 +33,6 @@ class Camera(Map):
         if 0 < new_y - window_y_scaled and new_y + window_y_scaled < self.map_height:
             self.camera_pos = (self.camera_pos[0], new_y)
 
-
     def zoomIn(self):
         new_zoom = self.zoom * 1.1
         self.zoom = min(self.max_zoom, new_zoom)
@@ -52,10 +51,12 @@ class Camera(Map):
         min_zoom = self.minZoom()
         self.zoom = max(min_zoom, new_zoom)
 
-    
     def update_viewport(self):
         current_mouse_pos = mouse.get_pos()
         if mouse.get_pressed()[1]:
+            # TODO: Update the location based on the zoom level 
+            #       if we are at the edge of the map - zoom to a location
+            # TODO: Update Zoom and Location simultaneously
             self.move(current_mouse_pos)
         self.mouse.update_position(current_mouse_pos)
     

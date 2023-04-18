@@ -1,7 +1,7 @@
 from pygame import draw
 
 class Square:
-    def __init__(self, screen, screen_size, index, location, size, color, outline):
+    def __init__(self, screen, screen_size, index, location, size, color, outline, path=False):
         self.screen = screen
         self.screen_center_x = screen_size[0] / 2
         self.screen_center_y = screen_size[1] / 2
@@ -10,6 +10,7 @@ class Square:
         self.y = location[1] * size
         self.size = size
         self.outline = outline
+        self.path = path
         self.set_color(color)
     
     def set_color(self, color):
