@@ -13,6 +13,7 @@ class UI(Camera):
         # self.values = []
         # self.sliders = []
         # self.init_sliders()
+        self.buttons = []
         self.init_buttons()
     
     def init_sliders(self):
@@ -37,8 +38,7 @@ class UI(Camera):
         self.values.append(pygame_gui.elements.UILabel(pygame.Rect((120, 140), (60, 20)), str(self.sliders[3].current_value), self.manager))
     
     def init_buttons(self):
-        self.buttons.append(pygame_gui.elements.UIButton(pygame.Rect((30, 180), (100, 20)), "Generate", self.manager, object_id="#generate_button"))
-        pass
+        self.buttons.append(pygame_gui.elements.UIButton(pygame.Rect((30, 30), (100, 50)), "Generate", self.manager, object_id="#generate_button"))
     
     def update_sliders(self):
         self.noise.scale = self.sliders[0].current_value

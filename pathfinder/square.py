@@ -1,10 +1,7 @@
 from pygame import draw
 
 class Square:
-    def __init__(self, screen, screen_size, index, location, size, color, outline, path=False):
-        self.screen = screen
-        self.screen_center_x = screen_size[0] / 2
-        self.screen_center_y = screen_size[1] / 2
+    def __init__(self, index, location, size, color, outline, path=False):
         self.index = index
         self.x = location[0] * size
         self.y = location[1] * size
@@ -17,11 +14,13 @@ class Square:
         self.color = color if isinstance(color, tuple) else color.value
     
     # TODO: delete initialization of camera_props
-    def draw(self, zoom, camera_pos):
+    def draw(self, screen, screen_size, zoom, camera_pos):
+        screen_center_x = screen_size[0] / 2
+        screen_center_y = screen_size[1] / 2
         origin_x, origin_y = camera_pos
         
         size = self.size * zoom
-        x = (self.x - origin_x) * zoom + self.screen_center_x 
-        y = (self.y - origin_y) * zoom + self.screen_center_y
+        x = (self.x - origin_x) * zoom + screen_center_x 
+        y = (self.y - origin_y) * zoom + screen_center_y
         
-        draw.rect(self.screen, self.color, (x, y, size, size), self.outline)
+        draw.rect(screen, self.color, (x, y, size, size), self.outline)

@@ -9,7 +9,7 @@ class Game(UI):
     
     def process_inputs(self):
         for e in pygame.event.get():
-            #self.manager.process_events(e)
+            self.manager.process_events(e)
             if e.type == pygame.QUIT or e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
                 self.running = False
             elif e.type == pygame.MOUSEBUTTONDOWN:
@@ -17,9 +17,12 @@ class Game(UI):
                     self.zoomIn()
                 elif e.button == 5:
                     self.zoomOut()
-            # elif e.type == pygame.USEREVENT:
-            #     if e.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
-            #         if e.ui_element in self.sliders:
+            elif e.type == pygame.USEREVENT:
+                if e.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if e.ui_element in self.buttons:
+                        self.create_new_start()
+            #    if e.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
+            #        if e.ui_element in self.sliders:
             #             self.update_sliders()
             #             self.create_noise()
 
