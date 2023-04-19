@@ -8,6 +8,9 @@ class Square:
         self.size = size
         self.outline = outline
         self.path = path
+        self.distance = 0
+        self.mapped = False
+        self.walked = False
         self.set_color(color)
     
     def set_color(self, color):

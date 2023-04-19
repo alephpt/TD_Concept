@@ -61,4 +61,5 @@ class Camera(Map):
         self.mouse.update_position(current_mouse_pos)
     
     def render(self):
+        self.update_viewport()     
         self.draw()

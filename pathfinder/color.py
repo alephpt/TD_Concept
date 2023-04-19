@@ -7,4 +7,6 @@ class Color(Enum):
     Green = (34, 185, 67)
     Red = (185, 34, 67)
     Blue = (34, 67, 185)
+    Orange = (181, 100, 0)
     Brown = (48, 34, 26)
+    

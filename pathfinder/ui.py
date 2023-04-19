@@ -56,11 +56,11 @@ class UI(Camera):
     def update(self):
         self.surface.fill(Color.Black.value)
         
-        self.manager.update(self.clock.get_time())
-        self.manager.draw_ui(self.surface)
+        #self.manager.update(self.clock.get_time())
+        #self.manager.draw_ui(self.surface)
 
-        self.update_viewport() 
         self.render()
+        self.exec_pathfinding()
         
+        self.clock.tick(5)
         pygame.display.update()
-        self.clock.tick(15)

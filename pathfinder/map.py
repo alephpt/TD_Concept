@@ -69,3 +69,6 @@ class Map(PathFinder):
         # TODO: Only draw the squares in the screen
         for square in self.squares:
             square.draw(self.screen, self.screen_size, self.zoom, self.camera_pos)
+            
+    def exec_pathfinding(self):
+        self.find_path()

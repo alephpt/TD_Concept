@@ -4,6 +4,9 @@ from ui import UI
 
 class Game(UI):
     def __init__(self, screen_size, map_sq, square_size):
+        ## Initialize Game and PyGame ##
+        pygame.init()
+        pygame.display.set_caption("Pathfinder Visualizer")
         super().__init__(screen_size, map_sq, square_size)
         self.running = True
     
@@ -20,7 +23,8 @@ class Game(UI):
             elif e.type == pygame.USEREVENT:
                 if e.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if e.ui_element in self.buttons:
-                        self.create_new_start()
+                        if not self.walking():
+                            self.create_new_start()
             #    if e.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
             #        if e.ui_element in self.sliders:
             #             self.update_sliders()
@@ -31,10 +35,6 @@ def main():
     SCREEN_SIZE = (1800, 1100)
     N_MAP_SQ = (150, 150)
     SQUARE_SIZE = 40
-    
-    ## Initialize Game and PyGame ##
-    pygame.init()
-    pygame.display.set_caption("Pathfinder Visualizer")
 
     game = Game(SCREEN_SIZE, N_MAP_SQ, SQUARE_SIZE)
 
